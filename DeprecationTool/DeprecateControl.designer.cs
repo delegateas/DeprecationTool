@@ -33,7 +33,7 @@
             this.tssSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbSample = new System.Windows.Forms.ToolStripButton();
             this.entityListView = new System.Windows.Forms.ListView();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.attributeList = new System.Windows.Forms.CheckedListBox();
             this.dropChangesButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.toolStripMenu.SuspendLayout();
@@ -83,13 +83,13 @@
             this.entityListView.UseCompatibleStateImageBehavior = false;
             this.entityListView.SelectedIndexChanged += new System.EventHandler(this.entityListView_SelectedIndexChanged);
             // 
-            // checkedListBox1
+            // attributeList
             // 
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(288, 29);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(268, 229);
-            this.checkedListBox1.TabIndex = 6;
+            this.attributeList.FormattingEnabled = true;
+            this.attributeList.Location = new System.Drawing.Point(288, 29);
+            this.attributeList.Name = "attributeList";
+            this.attributeList.Size = new System.Drawing.Size(268, 229);
+            this.attributeList.TabIndex = 6;
             // 
             // dropChangesButton
             // 
@@ -117,12 +117,12 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.applyButton);
             this.Controls.Add(this.dropChangesButton);
-            this.Controls.Add(this.checkedListBox1);
+            this.Controls.Add(this.attributeList);
             this.Controls.Add(this.entityListView);
             this.Controls.Add(this.toolStripMenu);
             this.Name = "DeprecateControl";
             this.Size = new System.Drawing.Size(559, 300);
-            this.Load += new System.EventHandler(this.MyPluginControl_Load);
+            this.Load += new System.EventHandler(this.DeprecateControl_Load);
             this.toolStripMenu.ResumeLayout(false);
             this.toolStripMenu.PerformLayout();
             this.ResumeLayout(false);
@@ -136,7 +136,7 @@
         private System.Windows.Forms.ToolStripButton tsbSample;
         private System.Windows.Forms.ToolStripSeparator tssSeparator1;
         private System.Windows.Forms.ListView entityListView;
-        private System.Windows.Forms.CheckedListBox checkedListBox1;
+        private System.Windows.Forms.CheckedListBox attributeList;
         private System.Windows.Forms.Button dropChangesButton;
         private System.Windows.Forms.Button applyButton;
     }

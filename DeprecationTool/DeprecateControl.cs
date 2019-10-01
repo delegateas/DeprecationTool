@@ -17,13 +17,14 @@ namespace DeprecationTool
     public partial class DeprecateControl : PluginControlBase
     {
         private Settings mySettings;
+        private IDictionary<String, IDictionary<string, Lib.Deprecate.MetaData[]>> solutionsWithData;
 
         public DeprecateControl()
         {
             InitializeComponent();
         }
 
-        private void MyPluginControl_Load(object sender, EventArgs e)
+        private void DeprecateControl_Load(object sender, EventArgs e)
         {
             ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
 
@@ -99,12 +100,14 @@ namespace DeprecationTool
                     var result = args.Result as IDictionary<String, IDictionary<string, Lib.Deprecate.MetaData[]>>;
                     if (result != null)
                     {
+                        entityListView.View = View.Details;
                         entityListView.Columns.Add("Name");
                         result.TryGetValue("OnboardingASA", out var res);
-                        foreach (var item in res.Keys)
-                            entityListView.Items.Add(new ListViewItem(new string[] { item }));
 
-                        MessageBox.Show($"Found {result.Count} accounts");
+                        foreach (var item in res.Keys)
+                            entityListView.Items.Add(new ListViewItem(new String[] { item }));
+
+                        solutionsWithData = result;
                     }
                 }
             });
@@ -115,7 +118,7 @@ namespace DeprecationTool
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MyPluginControl_OnCloseTool(object sender, EventArgs e)
+        private void DeprecateControl_OnCloseTool(object sender, EventArgs e)
         {
             // Before leaving, save the settings
             SettingsManager.Instance.Save(GetType(), mySettings);
@@ -137,7 +140,7 @@ namespace DeprecationTool
 
         private void entityListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            
         }
 
         private void dropChangesButton_Click(object sender, EventArgs e)
