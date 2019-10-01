@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using XrmToolBox.Extensibility;
 using XrmToolBox.Extensibility.Interfaces;
+using Lib;
 
 namespace DeprecationTool
 {
