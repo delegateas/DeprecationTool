@@ -14,11 +14,11 @@ using McTools.Xrm.Connection;
 
 namespace DeprecationTool
 {
-    public partial class MyPluginControl : PluginControlBase
+    public partial class DeprecateControl : PluginControlBase
     {
         private Settings mySettings;
 
-        public MyPluginControl()
+        public DeprecateControl()
         {
             InitializeComponent();
         }
@@ -38,6 +38,8 @@ namespace DeprecationTool
             {
                 LogInfo("Settings found and loaded");
             }
+
+            LoadData();
         }
 
         private void tsbClose_Click(object sender, EventArgs e)
@@ -79,6 +81,35 @@ namespace DeprecationTool
             });
         }
 
+        private void LoadData()
+        {
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = "Getting entity Data",
+                Work = (worker, args) =>
+                {
+                    args.Result = Lib.Deprecate.retrieveSolutionEntities(Service, "OnboardingASA");
+                },
+                PostWorkCallBack = (args) =>
+                {
+                    if (args.Error != null)
+                    {
+                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    var result = args.Result as IDictionary<String, IDictionary<string, Lib.Deprecate.MetaData[]>>;
+                    if (result != null)
+                    {
+                        entityListView.Columns.Add("Name");
+                        result.TryGetValue("OnboardingASA", out var res);
+                        foreach (var item in res.Keys)
+                            entityListView.Items.Add(new ListViewItem(new string[] { item }));
+
+                        MessageBox.Show($"Found {result.Count} accounts");
+                    }
+                }
+            });
+        }
+
         /// <summary>
         /// This event occurs when the plugin is closed
         /// </summary>
@@ -102,6 +133,21 @@ namespace DeprecationTool
                 mySettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
                 LogInfo("Connection has changed to: {0}", detail.WebApplicationUrl);
             }
+        }
+
+        private void entityListView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dropChangesButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void applyButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

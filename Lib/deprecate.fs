@@ -31,6 +31,8 @@ module Deprecate =
                           | SearchableToggle
                           | DisplayNamePrefix
 
+  type ResDict = IDictionary<String, IDictionary<string, MetaData[]>>
+
   let deprecationStampPattern = 
     @"\n(\(Deprecated:)\s(?<date>\d{2,}\/\d{2,}\/\d{4,}\s\d{2,}.\d{2,}.\d{2,})(,\ssearch:\s(?<searchable>1|0))?(\))"
 
@@ -117,11 +119,11 @@ module Deprecate =
           ["solutionid"; "objectid"; "componenttype"] solutionComponentFilter
         |> Array.map (fun sc -> 
           getEntityAttributesFromId proxy (sc.Attributes.["objectid"] :?> Guid) "dg_")
-        |> Map.ofArray
+        |> dict
 
       (sol.Attributes.["uniquename"].ToString(), entityMetadata)
     )
-    |> Map.ofArray
+    |> dict
 
   let attributeUpdateRequest (proxy:IOrganizationService) (modifiedAttrMetadata: MetaData) =
     let req = UpdateAttributeRequest()

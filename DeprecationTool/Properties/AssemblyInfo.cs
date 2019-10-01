@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DeprecationTool")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Deprecation Tool")]
+[assembly: AssemblyDescription("Deprecation tool for XRM")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Delegate")]
 [assembly: AssemblyProduct("DeprecationTool")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
