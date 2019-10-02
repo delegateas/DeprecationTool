@@ -1,4 +1,8 @@
-﻿namespace DeprecationTool
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace DeprecationTool
 {
     partial class DeprecateControl
     {
@@ -36,6 +40,7 @@
             this.attributeList = new System.Windows.Forms.CheckedListBox();
             this.dropChangesButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
+            this.solutionComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -43,12 +48,13 @@
             // 
             this.toolStripMenu.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolStripMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsbClose,
+            this.solutionComboBox,
             this.tssSeparator1,
+            this.tsbClose,
             this.tsbSample});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
-            this.toolStripMenu.Size = new System.Drawing.Size(559, 25);
+            this.toolStripMenu.Size = new System.Drawing.Size(559, 28);
             this.toolStripMenu.TabIndex = 4;
             this.toolStripMenu.Text = "toolStrip1";
             // 
@@ -56,27 +62,31 @@
             // 
             this.tsbClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsbClose.Name = "tsbClose";
-            this.tsbClose.Size = new System.Drawing.Size(86, 22);
+            this.tsbClose.Size = new System.Drawing.Size(86, 25);
             this.tsbClose.Text = "Close this tool";
             this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
             // 
             // tssSeparator1
             // 
             this.tssSeparator1.Name = "tssSeparator1";
-            this.tssSeparator1.Size = new System.Drawing.Size(6, 25);
+            this.tssSeparator1.Size = new System.Drawing.Size(6, 28);
             // 
             // tsbSample
             // 
-            this.tsbSample.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbSample.Font = new System.Drawing.Font("Segoe UI", 12F);
             this.tsbSample.Name = "tsbSample";
-            this.tsbSample.Size = new System.Drawing.Size(47, 22);
-            this.tsbSample.Text = "Try me";
+            this.tsbSample.Size = new System.Drawing.Size(28, 25);
+            this.tsbSample.Text = "⟳";
             this.tsbSample.Click += new System.EventHandler(this.tsbSample_Click);
             // 
             // entityListView
             // 
+            this.entityListView.View = View.Details;
+            this.entityListView.Columns.Add("Name");
+            this.entityListView.FullRowSelect = true;
             this.entityListView.HideSelection = false;
             this.entityListView.Location = new System.Drawing.Point(4, 29);
+            this.entityListView.MultiSelect = false;
             this.entityListView.Name = "entityListView";
             this.entityListView.Size = new System.Drawing.Size(278, 268);
             this.entityListView.TabIndex = 5;
@@ -90,6 +100,7 @@
             this.attributeList.Name = "attributeList";
             this.attributeList.Size = new System.Drawing.Size(268, 229);
             this.attributeList.TabIndex = 6;
+            this.attributeList.SelectedIndexChanged += new System.EventHandler(this.attributeList_SelectedIndexChanged);
             // 
             // dropChangesButton
             // 
@@ -110,6 +121,11 @@
             this.applyButton.Text = "Apply Deprecations";
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
+            // 
+            // solutionComboBox
+            // 
+            this.solutionComboBox.Name = "solutionComboBox";
+            this.solutionComboBox.Size = new System.Drawing.Size(121, 28);
             // 
             // DeprecateControl
             // 
@@ -139,5 +155,6 @@
         private System.Windows.Forms.CheckedListBox attributeList;
         private System.Windows.Forms.Button dropChangesButton;
         private System.Windows.Forms.Button applyButton;
+        private System.Windows.Forms.ToolStripComboBox solutionComboBox;
     }
 }

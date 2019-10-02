@@ -19,6 +19,13 @@ module Deprecate =
       attribute: AttributeMetadata
   }
 
+  type SolutionData = {
+    id: Guid
+    uniqueName: string
+  }
+  
+//  type ResDict = IDictionary<String, IDictionary<string, MetaData[]>>
+
   type EntityMetaDataMap = Map<LogicalName, MetaData[]>
 
   type SolutionMetaDataMap = Map<LogicalName, EntityMetaDataMap>
@@ -31,15 +38,15 @@ module Deprecate =
                           | SearchableToggle
                           | DisplayNamePrefix
 
-  type ResDict = IDictionary<String, IDictionary<string, MetaData[]>>
-
   let deprecationStampPattern = 
     @"\n(\(Deprecated:)\s(?<date>\d{2,}\/\d{2,}\/\d{4,}\s\d{2,}.\d{2,}.\d{2,})(,\ssearch:\s(?<searchable>1|0))?(\))"
 
 
   let getResponse<'T when 'T :> OrganizationResponse> (proxy:IOrganizationService) request =
     (proxy.Execute(request)) :?> 'T
-
+  
+  // if prefix is empty, it crashes. 
+  // We need to check the given attribute metadata contains info or we can get a null pointer exeception.
   let metadataToDeprecationType entityLName (attr: AttributeMetadata) =
       {
           MetaData.entityLName = entityLName
@@ -55,13 +62,13 @@ module Deprecate =
     request.RetrieveAsIfPublished <- true
 
     let resp = getResponse<RetrieveEntityResponse> proxy request
-    let curriesDeprecationType = metadataToDeprecationType resp.EntityMetadata.LogicalName
+    let curriedDeprecationType = metadataToDeprecationType resp.EntityMetadata.LogicalName
 
     let filteredMetaData = 
       resp.EntityMetadata.Attributes 
       |> Array.filter (fun x -> x.AttributeOf = null)
       |> Array.filter (fun x -> x.LogicalName.StartsWith(filterPrefix))
-      |> Array.map (curriesDeprecationType)
+      |> Array.map (curriedDeprecationType)
 
 
     (resp.EntityMetadata.LogicalName, filteredMetaData)
@@ -90,6 +97,10 @@ module Deprecate =
     (cols:string list) (filter:Map<string,obj>) =
     
     let f = FilterExpression()
+    
+    // this is not pretty, look at it later
+    if logicalName = "solution" then f.FilterOperator <- LogicalOperator.Or
+
     filter |> Map.iter(fun k v -> f.AddCondition(k, ConditionOperator.Equal, v))
 
     let q = QueryExpression(logicalName)
@@ -100,17 +111,11 @@ module Deprecate =
     retrieveMultiple proxy logicalName q
     |> Array.ofSeq
 
-  let retrieveSolutionEntities proxy solutionName =
-    let solutionFilter = [("uniquename", solutionName)] |> Map.ofList
-    let solutions = 
-      getEntitiesFilter proxy "solution" 
-        ["solutionid"; "uniquename"] solutionFilter
-    
+  let retrieveSolutionEntities proxy (solutions: SolutionData[]) prefix =
     solutions
-    |> Array.ofSeq
     |> Array.Parallel.map (fun sol ->
       let solutionComponentFilter = 
-        [ ("solutionid", sol.Attributes.["solutionid"])
+        [ ("solutionid", sol.id.ToString() :> obj)
           ("componenttype", 1 :> obj) // 1 = Entity
         ] |> Map.ofList
 
@@ -118,12 +123,25 @@ module Deprecate =
         getEntitiesFilter proxy "solutioncomponent" 
           ["solutionid"; "objectid"; "componenttype"] solutionComponentFilter
         |> Array.map (fun sc -> 
-          getEntityAttributesFromId proxy (sc.Attributes.["objectid"] :?> Guid) "dg_")
+          getEntityAttributesFromId proxy (sc.Attributes.["objectid"] :?> Guid) prefix)
         |> dict
-
-      (sol.Attributes.["uniquename"].ToString(), entityMetadata)
+      (sol.uniqueName, entityMetadata)
     )
     |> dict
+
+  let retrieveSolutionNames proxy (ignore: string[]) prefix =
+    let ignoreSet = ignore |> Set.ofArray
+    getEntitiesFilter proxy "solution" 
+        ["solutionid"; "uniquename"; "ismanaged"] Map.empty
+    |> Seq.filter(fun x -> ignoreSet.Contains(x.Attributes.["uniquename"].ToString()) |> not)
+    |> Seq.filter(fun x -> (x.Attributes.["ismanaged"] :?> bool) |> not)
+    |> Seq.filter(fun x -> x.Attributes.["uniquename"].ToString().StartsWith(prefix))
+    |> Seq.map(fun x -> 
+      { SolutionData.id = (x.Attributes.["solutionid"] :?> Guid) 
+        uniqueName = x.Attributes.["uniquename"].ToString() 
+      }
+    )
+    |> Array.ofSeq
 
   let attributeUpdateRequest (proxy:IOrganizationService) (modifiedAttrMetadata: MetaData) =
     let req = UpdateAttributeRequest()
