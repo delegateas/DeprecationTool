@@ -17,12 +17,24 @@ module Deprecate =
       entityLName: LogicalName
       locale: int
       attribute: AttributeMetadata
-  }
+      isDeprecated: bool
+  } with 
+    override this.ToString() =
+      this.attribute.SchemaName
 
   type SolutionData = {
     id: Guid
     uniqueName: string
-  }
+  } with 
+    override this.ToString() =
+      this.uniqueName
+  
+  type DisplayValue = {
+    Display: string
+    Value: string
+  } with
+    override this.ToString() = 
+      this.Display
   
 //  type ResDict = IDictionary<String, IDictionary<string, MetaData[]>>
 
@@ -38,31 +50,55 @@ module Deprecate =
                           | SearchableToggle
                           | DisplayNamePrefix
 
+  let labelToString (label: Label) =
+    label.UserLocalizedLabel.Label.ToString()
+
   let deprecationStampPattern = 
     @"\n(\(Deprecated:)\s(?<date>\d{2,}\/\d{2,}\/\d{4,}\s\d{2,}.\d{2,}.\d{2,})(,\ssearch:\s(?<searchable>1|0))?(\))"
 
+  let startsWithPrefix (attrMetaData: AttributeMetadata) prefix =
+    (labelToString attrMetaData.DisplayName).StartsWith(prefix)
+
+  let isSearchable (attrMetaData: AttributeMetadata) =
+    attrMetaData.IsValidForAdvancedFind.Value |> not
+
+  let parseDescriptionStamp (description: string) =
+    let dateMatch = Regex.Match(description, deprecationStampPattern).Groups.["date"].Value
+
+    match dateMatch with
+    | "" -> None
+    | s  -> Some(s)
+
+  let hasDeprecationDescription (attr: AttributeMetadata) = 
+    match (parseDescriptionStamp (labelToString attr.Description)) with
+    | Some(x) -> true
+    | _ -> false
+
+  let isDeprecated (attr: AttributeMetadata) prefix =
+    (isSearchable attr) && (hasDeprecationDescription attr) && (startsWithPrefix attr prefix)
 
   let getResponse<'T when 'T :> OrganizationResponse> (proxy:IOrganizationService) request =
     (proxy.Execute(request)) :?> 'T
   
   // if prefix is empty, it crashes. 
   // We need to check the given attribute metadata contains info or we can get a null pointer exeception.
-  let metadataToDeprecationType entityLName (attr: AttributeMetadata) =
+  let metadataToDeprecationType entityLName prefix (attr: AttributeMetadata) =
       {
           MetaData.entityLName = entityLName
           locale = attr.Description.UserLocalizedLabel.LanguageCode
           attribute = attr
+          isDeprecated = (isDeprecated attr prefix) 
       }
 
 
-  let getEntityAttributesFromId (proxy:IOrganizationService) metadataId filterPrefix =
+  let getEntityAttributesFromId (proxy:IOrganizationService) metadataId filterPrefix deprecationPrefix =
     let request = RetrieveEntityRequest()
     request.MetadataId <- metadataId
     request.EntityFilters <- Microsoft.Xrm.Sdk.Metadata.EntityFilters.All
     request.RetrieveAsIfPublished <- true
 
     let resp = getResponse<RetrieveEntityResponse> proxy request
-    let curriedDeprecationType = metadataToDeprecationType resp.EntityMetadata.LogicalName
+    let curriedDeprecationType = metadataToDeprecationType resp.EntityMetadata.LogicalName deprecationPrefix
 
     let filteredMetaData = 
       resp.EntityMetadata.Attributes 
@@ -111,7 +147,7 @@ module Deprecate =
     retrieveMultiple proxy logicalName q
     |> Array.ofSeq
 
-  let retrieveSolutionEntities proxy (solutions: SolutionData[]) prefix =
+  let retrieveSolutionEntities proxy (solutions: SolutionData[]) entityPrefix deprecationPrefix =
     solutions
     |> Array.Parallel.map (fun sol ->
       let solutionComponentFilter = 
@@ -123,7 +159,7 @@ module Deprecate =
         getEntitiesFilter proxy "solutioncomponent" 
           ["solutionid"; "objectid"; "componenttype"] solutionComponentFilter
         |> Array.map (fun sc -> 
-          getEntityAttributesFromId proxy (sc.Attributes.["objectid"] :?> Guid) prefix)
+          getEntityAttributesFromId proxy (sc.Attributes.["objectid"] :?> Guid) entityPrefix deprecationPrefix)
         |> dict
       (sol.uniqueName, entityMetadata)
     )
@@ -151,12 +187,6 @@ module Deprecate =
 
     (proxy.Execute(req)) :?> UpdateAttributeResponse
 
-  let parseDescriptionStamp (description: string) =
-    let dateMatch = Regex.Match(description, deprecationStampPattern).Groups.["date"].Value
-
-    match dateMatch with
-    | "" -> None
-    | s  -> Some(s)
 
 
   let getDescriptionSearchable (description: string) = 
@@ -174,9 +204,6 @@ module Deprecate =
     let deprecationDate = sprintf "\n(Deprecated: %A, search: %s)" DateTime.Now searchable
     cleanDescription + deprecationDate
 
-  let isSearchable (attrMetaData: MetaData) =
-    attrMetaData.attribute.IsValidForAdvancedFind.Value
-
   let safeAddDeprecationPrefix (displayName: string) (prefix: string) =
     if displayName.StartsWith prefix 
     then displayName
@@ -189,8 +216,22 @@ module Deprecate =
     else displayName
 
 
-  let labelToString (label: Label) =
-    label.UserLocalizedLabel.Label.ToString()
+  let executeRequests (proxy: IOrganizationService) (reqs: OrganizationRequest[]) =
+    let req = ExecuteMultipleRequest()
+    req.Requests <- OrganizationRequestCollection()
+    req.Requests.AddRange(reqs)
+    req.Settings <- ExecuteMultipleSettings()
+    req.Settings.ContinueOnError <- true
+    printfn "Firing execute multiple"
+    let resp = proxy.Execute(req) :?> ExecuteMultipleResponse
+    printfn "Execute multiple finished"
+    if resp.IsFaulted then
+      printfn "Printing errror"
+      resp.Responses
+      |> Array.ofSeq
+      |> Array.iter (fun r -> printfn "ERROR: %i, %A" r.RequestIndex r.Fault.Message)
+
+    resp
 
 
   (* An attribute is deprecated when 
