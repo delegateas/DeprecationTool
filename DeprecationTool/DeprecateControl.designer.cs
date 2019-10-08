@@ -33,14 +33,15 @@ namespace DeprecationTool
         private void InitializeComponent()
         {
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
-            this.tsbClose = new System.Windows.Forms.ToolStripButton();
+            this.solutionComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.tssSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbClose = new System.Windows.Forms.ToolStripButton();
             this.tsbSample = new System.Windows.Forms.ToolStripButton();
             this.entityListView = new System.Windows.Forms.ListView();
+            this.EntityHeaderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.attributeList = new System.Windows.Forms.CheckedListBox();
             this.dropChangesButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
-            this.solutionComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -58,6 +59,18 @@ namespace DeprecationTool
             this.toolStripMenu.TabIndex = 4;
             this.toolStripMenu.Text = "toolStrip1";
             // 
+            // solutionComboBox
+            // 
+            this.solutionComboBox.DropDownWidth = 271;
+            this.solutionComboBox.Name = "solutionComboBox";
+            this.solutionComboBox.Size = new System.Drawing.Size(271, 28);
+            this.solutionComboBox.SelectedIndexChanged += new System.EventHandler(this.solutionComboBox_SelectedIndexChanged);
+            // 
+            // tssSeparator1
+            // 
+            this.tssSeparator1.Name = "tssSeparator1";
+            this.tssSeparator1.Size = new System.Drawing.Size(6, 28);
+            // 
             // tsbClose
             // 
             this.tsbClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -65,11 +78,6 @@ namespace DeprecationTool
             this.tsbClose.Size = new System.Drawing.Size(86, 25);
             this.tsbClose.Text = "Close this tool";
             this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
-            // 
-            // tssSeparator1
-            // 
-            this.tssSeparator1.Name = "tssSeparator1";
-            this.tssSeparator1.Size = new System.Drawing.Size(6, 28);
             // 
             // tsbSample
             // 
@@ -81,26 +89,32 @@ namespace DeprecationTool
             // 
             // entityListView
             // 
-            this.entityListView.View = View.Details;
-            this.entityListView.Columns.Add("Name");
+            this.entityListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.EntityHeaderName});
             this.entityListView.FullRowSelect = true;
             this.entityListView.HideSelection = false;
-            this.entityListView.Location = new System.Drawing.Point(4, 29);
+            this.entityListView.Location = new System.Drawing.Point(3, 29);
             this.entityListView.MultiSelect = false;
             this.entityListView.Name = "entityListView";
-            this.entityListView.Size = new System.Drawing.Size(278, 268);
+            this.entityListView.Size = new System.Drawing.Size(279, 268);
             this.entityListView.TabIndex = 5;
             this.entityListView.UseCompatibleStateImageBehavior = false;
+            this.entityListView.View = System.Windows.Forms.View.Details;
             this.entityListView.SelectedIndexChanged += new System.EventHandler(this.entityListView_SelectedIndexChanged);
+            // 
+            // EntityHeaderName
+            // 
+            this.EntityHeaderName.Text = "Name";
             // 
             // attributeList
             // 
+            this.attributeList.CheckOnClick = true;
             this.attributeList.FormattingEnabled = true;
             this.attributeList.Location = new System.Drawing.Point(288, 29);
             this.attributeList.Name = "attributeList";
             this.attributeList.Size = new System.Drawing.Size(268, 229);
             this.attributeList.TabIndex = 6;
-            this.attributeList.SelectedIndexChanged += new System.EventHandler(this.attributeList_SelectedIndexChanged);
+            this.attributeList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.attributeList_CheckedItemChanged);
             // 
             // dropChangesButton
             // 
@@ -121,11 +135,6 @@ namespace DeprecationTool
             this.applyButton.Text = "Apply Deprecations";
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
-            // 
-            // solutionComboBox
-            // 
-            this.solutionComboBox.Name = "solutionComboBox";
-            this.solutionComboBox.Size = new System.Drawing.Size(121, 28);
             // 
             // DeprecateControl
             // 
@@ -156,5 +165,6 @@ namespace DeprecationTool
         private System.Windows.Forms.Button dropChangesButton;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.ToolStripComboBox solutionComboBox;
+        private ColumnHeader EntityHeaderName;
     }
 }

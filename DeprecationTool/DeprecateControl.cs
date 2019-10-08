@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DeprecationTool.Models;
+using Lib;
 using XrmToolBox.Extensibility;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk;
@@ -17,6 +19,7 @@ namespace DeprecationTool
     public partial class DeprecateControl : PluginControlBase
     {
         private Settings pluginSettings;
+        private FormState formState;
         private IDictionary<string, IDictionary<string, Lib.Deprecate.MetaData[]>> solutionsWithData;
         private Lib.Deprecate.SolutionData[] solutions;
 
@@ -40,7 +43,8 @@ namespace DeprecationTool
             {
                 LogInfo("Settings found and loaded");
             }
-
+    
+            formState = new FormState();
             LoadData();
         }
 
@@ -90,7 +94,7 @@ namespace DeprecationTool
                 Message = "Fetching entities and attributes",
                 Work = (worker, args) =>
                 {
-                    args.Result = Lib.Deprecate.retrieveSolutionEntities(Service, solutions, "dg_");
+                    args.Result = Lib.Deprecate.retrieveSolutionEntities(Service, solutions, "dg_", "zz_");
                 },
                 PostWorkCallBack = (args) =>
                 {
@@ -98,11 +102,11 @@ namespace DeprecationTool
                     {
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                    var result = args.Result as IDictionary<string, IDictionary<string, Lib.Deprecate.MetaData[]>>;
-                    if (result != null)
+
+                    if (args.Result is IDictionary<string, IDictionary<string, Deprecate.MetaData[]>> result)
                     {
                         solutionsWithData = result;
-                        populateEntitiesListView();
+                        populateSolutionsComboBox();
                     }
                 }
             };
@@ -120,11 +124,10 @@ namespace DeprecationTool
                     {
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                    var result = args.Result as Lib.Deprecate.SolutionData[];
-                    if (result != null)
+
+                    if (args.Result is Deprecate.SolutionData[] result)
                     {
                         solutions = result;
-                        populateSolutionsComboBox();
                         WorkAsync(fetchEntities);
                     }
                 }
@@ -133,17 +136,30 @@ namespace DeprecationTool
 
         private void populateSolutionsComboBox()
         {
-            foreach (var item in solutions)
-                solutionComboBox.Items.Add(item.uniqueName);
+            foreach(var sol in solutions)
+            {
+                var logicalName = sol.uniqueName;
+                solutionsWithData.TryGetValue(logicalName, out var entities);
+                var entityCountText = $"[{entities?.Count.ToString() ?? "n/a"}] {logicalName} ";
+
+                solutionComboBox.Items.Add(new Deprecate.DisplayValue(entityCountText, logicalName));
+            }
+
         }
 
-        private void populateEntitiesListView()
+        private void populateEntitiesListView(string solLogicalName)
         {
-            solutionsWithData.TryGetValue("OnboardingASA", out var res);
+            entityListView.Items.Clear();
+
+            if (!solutionsWithData.TryGetValue(solLogicalName, out var res)) return;
 
             foreach (var item in res.Keys)
                 entityListView.Items.Add(new ListViewItem(new string[] { item }));
+        }
 
+        private void clearAttributeList()
+        {
+            attributeList.Items.Clear();
         }
 
         /// <summary>
@@ -173,13 +189,42 @@ namespace DeprecationTool
 
         private void renderAttributeView(Lib.Deprecate.MetaData[] entity)
         {
-            attributeList.Items.Clear();
+            clearAttributeList();
 
-            foreach(var attr in entity)
+            foreach (var attr in entity)
+                attributeList.Items.Add(attr, attr.isDeprecated);
+
+        }
+
+        private bool discardChangesMessage()
+        {
+            return MessageBox.Show(
+                "You have pending changes, do you wish to discard them?",
+                "You have changed deprecation states that are not saved, do you wish to discard?",
+                MessageBoxButtons.YesNo) == DialogResult.Yes;
+
+        }
+
+        private void solutionComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var solutionList = (ToolStripComboBox) sender;
+            var currentlySelected = (Deprecate.DisplayValue) solutionList.SelectedItem;
+            var currentIndex = solutionList.SelectedIndex;
+            if (currentlySelected == null) return;
+
+            if (formState.HasPendingChanges)
             {
-                attributeList.Items.Add(attr.attribute.LogicalName);
+                if (!discardChangesMessage() && formState.CurrentSolutionIdx != -1)
+                {
+                    solutionList.SelectedIndex = formState.CurrentSolutionIdx;
+                }
             }
 
+            formState.CurrentSolutionIdx = currentIndex;
+            formState.SelectedSolution = currentlySelected.Value;
+            var logicalName = currentlySelected.Value;
+            populateEntitiesListView(logicalName);
+            clearAttributeList();
 
         }
 
@@ -188,20 +233,23 @@ namespace DeprecationTool
             var entityList = (ListView) sender;
             var selectedListViewItems = entityList.SelectedItems.Cast<ListViewItem>();
             var currentlySelected = selectedListViewItems.FirstOrDefault();
-            if (currentlySelected != null)
+            if (currentlySelected == null) return;
+
+            if (formState.HasPendingChanges)
             {
-                if(solutionsWithData.TryGetValue("OnboardingASA", out var selectedSolution))
+                if (!discardChangesMessage() && formState.CurrentSolutionIdx != -1)
                 {
-                    if (selectedSolution.TryGetValue(currentlySelected.SubItems[0].Text, out var selectedEntity))
-                    {
-                        renderAttributeView(selectedEntity);
-                    }
-
+                    currentlySelected.Selected = false;
+                    formState.CurrentEntity.Selected = true;
                 }
-
-
             }
-            // First subitem in selection should be name. This is sadly not strongly typed.
+
+            formState.CurrentEntity = currentlySelected;
+
+            if (!solutionsWithData.TryGetValue(formState.SelectedSolution, out var selectedSolution)) return;
+            if (!selectedSolution.TryGetValue(currentlySelected.SubItems[0].Text, out var selectedEntity)) return;
+
+            renderAttributeView(selectedEntity);
 
         }
 
@@ -215,9 +263,13 @@ namespace DeprecationTool
 
         }
 
-        private void attributeList_SelectedIndexChanged(object sender, EventArgs e)
+        private void attributeList_CheckedItemChanged(object sender, ItemCheckEventArgs e)
         {
-
+            //var fieldList = (CheckedListBox) sender;
+            //var selectedFields = fieldList.SelectedItems.Cast<Deprecate.MetaData>();
+            //formState.SelectedAttributes = selectedFields;
         }
+
+
     }
 }

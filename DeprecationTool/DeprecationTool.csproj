@@ -141,6 +141,7 @@
     <Compile Include="DeprecateControl.designer.cs">
       <DependentUpon>DeprecateControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\FormState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
@@ -159,6 +160,7 @@
       <DependentUpon>DeprecateControl.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF $(ConfigurationName) == Debug (
