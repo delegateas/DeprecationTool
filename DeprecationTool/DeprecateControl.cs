@@ -46,11 +46,38 @@ namespace DeprecationTool
                 LogInfo("Settings found and loaded");
             }
 
-            if(pluginSettings.FieldPrefix == string.Empty)
-                SettingsPrompt.SettingsDialog("Test", "123", pluginSettings);
+            // remove this
+            // pluginSettings.FieldPrefix = "";
+
+            firstTimeSettingsPrompt();
 
             formState = new FormState();
             LoadData();
+        }
+
+        private void settingsPrompt()
+        {
+            Settings res = null;
+            
+            while(res == null || res.DeprecationPrefix == string.Empty)
+                res = SettingsPrompt.SettingsDialog("Your field prefix (not required)",
+                    "Your deprecation prefix",
+                    "Deprecation settings",
+                    pluginSettings);
+
+            if (res == pluginSettings) return;
+
+            pluginSettings = res;
+            SettingsManager.Instance.Save(GetType(), pluginSettings);
+
+        }
+        private void firstTimeSettingsPrompt()
+        {
+            if (pluginSettings.DeprecationPrefix == string.Empty)
+            {
+                settingsPrompt();
+            }
+
         }
 
         private void tsbClose_Click(object sender, EventArgs e)
@@ -64,6 +91,10 @@ namespace DeprecationTool
             clearAttributeList();
             clearEntityList();
             LoadData();
+        }
+        private void tsSettings_Click(object sender, EventArgs e)
+        {
+            settingsPrompt();
         }
 
         private WorkAsyncInfo fetchEntities()
@@ -177,10 +208,9 @@ namespace DeprecationTool
         {
             base.UpdateConnection(newService, detail, actionName, parameter);
 
-            if (pluginSettings != null && detail != null)
+            if (newService != null)
             {
-                pluginSettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
-                LogInfo("Connection has changed to: {0}", detail.WebApplicationUrl);
+                LoadData();
             }
         }
 
@@ -313,7 +343,6 @@ namespace DeprecationTool
                 e.Graphics.DrawString("-", s.Font, Brushes.Black, new Point(1, 1));
             }
         }
-
 
     }
 }

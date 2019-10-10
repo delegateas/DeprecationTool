@@ -36,14 +36,14 @@ namespace DeprecationTool
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.solutionComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.tssSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsReload = new System.Windows.Forms.ToolStripButton();
+            this.tsbClose = new System.Windows.Forms.ToolStripButton();
+            this.tsSettings = new System.Windows.Forms.ToolStripButton();
             this.entityList = new System.Windows.Forms.ListView();
             this.EntityHeaderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.entityFieldList = new System.Windows.Forms.CheckedListBox();
             this.dropChangesButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
-            this.tsReload = new System.Windows.Forms.ToolStripButton();
-            this.tsbClose = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -55,7 +55,7 @@ namespace DeprecationTool
             this.tssSeparator1,
             this.tsReload,
             this.tsbClose,
-            this.toolStripButton4});
+            this.tsSettings});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
             this.toolStripMenu.Size = new System.Drawing.Size(559, 31);
@@ -73,6 +73,32 @@ namespace DeprecationTool
             // 
             this.tssSeparator1.Name = "tssSeparator1";
             this.tssSeparator1.Size = new System.Drawing.Size(6, 31);
+            // 
+            // tsReload
+            // 
+            this.tsReload.Image = global::DeprecationTool.Properties.Resources.ReloadIcon;
+            this.tsReload.Name = "tsReload";
+            this.tsReload.Size = new System.Drawing.Size(86, 28);
+            this.tsReload.Text = "Reload all";
+            this.tsReload.Click += new System.EventHandler(this.reload_click);
+            // 
+            // tsbClose
+            // 
+            this.tsbClose.Image = global::DeprecationTool.Properties.Resources.CloseIcon;
+            this.tsbClose.Name = "tsbClose";
+            this.tsbClose.Size = new System.Drawing.Size(88, 28);
+            this.tsbClose.Text = "Close tool";
+            this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
+            // 
+            // tsSettings
+            // 
+            this.tsSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsSettings.Image = ((System.Drawing.Image)(resources.GetObject("tsSettings.Image")));
+            this.tsSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsSettings.Name = "tsSettings";
+            this.tsSettings.Size = new System.Drawing.Size(28, 28);
+            this.tsSettings.Text = "tsSettings";
+            this.tsSettings.Click += new System.EventHandler(this.tsSettings_Click);
             // 
             // entityList
             // 
@@ -124,31 +150,6 @@ namespace DeprecationTool
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
             // 
-            // tsReload
-            // 
-            this.tsReload.Image = global::DeprecationTool.Properties.Resources.ReloadIcon;
-            this.tsReload.Name = "tsReload";
-            this.tsReload.Size = new System.Drawing.Size(86, 28);
-            this.tsReload.Text = "Reload all";
-            this.tsReload.Click += new System.EventHandler(this.reload_click);
-            // 
-            // tsbClose
-            // 
-            this.tsbClose.Image = global::DeprecationTool.Properties.Resources.CloseIcon;
-            this.tsbClose.Name = "tsbClose";
-            this.tsbClose.Size = new System.Drawing.Size(88, 28);
-            this.tsbClose.Text = "Close tool";
-            this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
-            // 
-            // toolStripButton4
-            // 
-            this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(28, 28);
-            this.toolStripButton4.Text = "toolStripButton4";
-            // 
             // DeprecateControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -182,6 +183,6 @@ namespace DeprecationTool
         private ToolStripButton toolStripButton1;
         private ToolStripButton toolStripButton2;
         private ToolStripButton toolStripButton3;
-        private ToolStripButton toolStripButton4;
+        private ToolStripButton tsSettings;
     }
 }

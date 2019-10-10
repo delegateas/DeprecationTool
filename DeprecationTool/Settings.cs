@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DeprecationTool.Models;
 
 namespace DeprecationTool
 {
@@ -14,7 +15,7 @@ namespace DeprecationTool
     /// </remarks>
     public class Settings
     {
-        public string LastUsedOrganizationWebappUrl { get; set; }
         public string FieldPrefix { get; set; }
+        public string DeprecationPrefix { get; set; }
     }
 }
