@@ -15,5 +15,6 @@ namespace DeprecationTool
     public class Settings
     {
         public string LastUsedOrganizationWebappUrl { get; set; }
+        public string FieldPrefix { get; set; }
     }
 }

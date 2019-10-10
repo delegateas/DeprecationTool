@@ -117,45 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="toolStripMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="toolStripButton4.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAcjSURBVGhD7Vr5b1RVFOZH/wv/BgPFBRRxY1MgkiiRqIkJ
-        URONoiEyRUBFStkEAsYiVWRREBQKoRIUalupltJCCC1LiqWdrZ3OdKbTWdtZjue7705n5r373syUqQTj
-        l3yh7bx3z3fvPfcsd5jyP/4LmLXuzgPTbPZZU22OFdMqHbXTbI4mZk+FzR6qqLSn8S9+F3/nz8Vz/Dze
-        k0PcG0y1uWawoPUssrWi0kGl096K9zGOHPLfwXSbYzav6h5e0SG1sNIoxuHxMK40MTl4aLX7QW3FHS69
-        iDLRhfFhR5osH3i75zDrFUYngbBjnyNN3z0qVjlf55XpUhubHAp7bFdKmDg4YrxZYXO4VUbM+PBqB728
-        w03VJ3y05ZRf0HbYRwuq3TSdP1O9oyTbhX0ppXRgBUoVDy75op/qO0I0NpakDAaDSbL94KPH1qjfMSXs
-        T2Qn4IMTcRus/vv7veQdyYrP4FiLl+ZuUL9nRU1HCWcCUaDQgX3qMyc9v8lNT6935v0dE/jggJeC0ZSU
-        nUXDVR8t3JQ/DvjMehct4LFm85j6z7K01xcdnRDK1IM4hAus+dFHDZ1h6vg7Rj9fDNHcja7xz2eudbCr
-        eMkfGpOyszjZFqDFW7LPghB+oi1Ml27HqK4tSMtr8j/PJXRJieYQScoizr/zzQB19cUokUhROpWiSDxF
-        zdcj9NwGJy3b1U/7m0ao1zPK/m/cAW8wQQ3XIrSCXQy798JmN/15K0bRUW2sWDxJzV0hemWnW2mb6SqY
-        7JARFS8Kwl1+uRymmDSYQZwNt9wIU7c7TqGYUXguRnlig8MJutgdo1ZmIpmWn5AYcySSpIPNQeGiKg3Q
-        J6UaIWobi/JgfrWLLrHbpNNZowAMY0dSSWvxuYDwXPEZYOzGrmieW+YS+kxrJyvfBx9f56TdZ4fJHzZG
-        mHLBM5ykbacDNJNtqTSAyrOA0pZPesGq8slPnfTt70EKRcs7Caz8UChJX/06LGyobGdpbzWU4qjP1Q8b
-        uZAP301HuCSXKQScnX28MNhllU09oVdK14AmQ/Wgnk984qTDF0ZE9LFCKqX5+Dhl1DLDWCJNF25GRXRS
-        2dUTeqV0DexXtaoH9XxxG6++M24qBsLDPLmbrlFqvhGlpusa27qj1Dc4RqMs1Az9gQTnmKGiyg3oldI1
-        oN1TPfgoDzZng0vEbHDzST8ftITpBIYjKTr6V4jeqPHQLN4tJDZwbpWTPuQMfflOXBl9AJyDjp44vbS9
-        f9zes5+76JGPjbqgV0rXwH/o0T8ELts1QAc4OZ3uCAu2cxg1c5/4WJrOXkVSU4dALMYqLui8XNipgAkM
-        8OLUc67J2NvXGBQT0o8FvVK6BjTe+ofAjXV+4Z/FAAUcymbVimWIyfUMcC6xOA+5gMutPuIzjsV6pXQN
-        HJrShoeYqOWLBWL4u/sGDWPkEkGgszdYUgRbe3RIMZY9LaVrMNuBUiaAmh+ltGqcDFEilBqClRPQ74DZ
-        Gag64beMHLlAjXSqPWxZFsOfnUMJ+UZh4FxVslvqxzGcAZxq/UPg0p399PW5IP3UGhJEAYYwaQaXPyEM
-        YqVz20f8vHirm45z+W0WBHCI3fz+8TbNFljz2zAt2aY8xLooZJIHcCBRhaK4Alce9JDdO2p6CHHgMQlE
-        EkSclYc0VnMwaOFEhYwLoSog2TV2RWjRFve4PSyEMozq80CxmRh1f6fdPJFlEOOtR1RCyAQDoYQQaIXe
-        wVF6u9ajtKunMRMXWQuhZURu6PUUnkQpwPk53R4USU9lV09DLVRsNQqi4DrETQdWuVxAdVt7frjICSiq
-        UQB1tvqFLHEekJkLdV4TQYC7sb3nLboxSeiUkvNRqCNDEkJUCExiQ4PzsqM+YFpWQ5/lbTZ6TtWLoGgp
-        bxvLAPwOF4AfJ4tIUIjtSHqxuDEfIEKJlrLK5HbCqicGrG4lsLVnroREY56LSDRBBxr9nMRCdLU3Sk7f
-        GE/GuEsoNe5wSY2CDxn7ZFt+ksRChGNJ7jeCZsmw8K0EYHUWUBJ3cRiNy5uJIPvtmSta9p3BB3DRZhet
-        OeLhcmFEysoCHdfyPR5xkYVohh1t6IyM5wbsYsO1EXrtS3VTY+r7eljdzKHZ/uh7H9W1jVATJ5295wKG
-        8nnpdju13/JK2Vkca/Gza+SPh0kcbuGxuOlBZHt1t1lHVsLNHMAvWN6NovGex5kSK6n/bHmNk/oGAlJ2
-        Fle6B2jJ1j7D83BNTMSsmdd0TOD7goneTr+1lws2b1TKzqKudZDmVdmV75hyorfTGeB+vtRJzN/Ijf8f
-        /ryDPMD9LlyvpOt1tgv7UsrEgRWwcic9ReXJBRkueVHLg+995zUPjQoKe3ez8nrAB80OdvlZ5u/IMkAU
-        QChjI/fft5S5EMmOM6JV2VEKxTg8XlFJqpwQtZPYkfvsm3o9UNqiPkeTwYLun/8rce8xZco/+g6twOuT
-        cY4AAAAASUVORK5CYII=
-</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="CloseIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\close.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ReloadIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\reload.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SettingsIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\settings.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

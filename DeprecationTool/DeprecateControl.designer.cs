@@ -32,16 +32,18 @@ namespace DeprecationTool
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DeprecateControl));
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.solutionComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.tssSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbClose = new System.Windows.Forms.ToolStripButton();
-            this.tsbSample = new System.Windows.Forms.ToolStripButton();
-            this.entityListView = new System.Windows.Forms.ListView();
+            this.entityList = new System.Windows.Forms.ListView();
             this.EntityHeaderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.attributeList = new System.Windows.Forms.CheckedListBox();
+            this.entityFieldList = new System.Windows.Forms.CheckedListBox();
             this.dropChangesButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
+            this.tsReload = new System.Windows.Forms.ToolStripButton();
+            this.tsbClose = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -51,11 +53,12 @@ namespace DeprecationTool
             this.toolStripMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.solutionComboBox,
             this.tssSeparator1,
+            this.tsReload,
             this.tsbClose,
-            this.tsbSample});
+            this.toolStripButton4});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
-            this.toolStripMenu.Size = new System.Drawing.Size(559, 28);
+            this.toolStripMenu.Size = new System.Drawing.Size(559, 31);
             this.toolStripMenu.TabIndex = 4;
             this.toolStripMenu.Text = "toolStrip1";
             // 
@@ -63,58 +66,43 @@ namespace DeprecationTool
             // 
             this.solutionComboBox.DropDownWidth = 271;
             this.solutionComboBox.Name = "solutionComboBox";
-            this.solutionComboBox.Size = new System.Drawing.Size(271, 28);
+            this.solutionComboBox.Size = new System.Drawing.Size(271, 31);
             this.solutionComboBox.SelectedIndexChanged += new System.EventHandler(this.solutionComboBox_SelectedIndexChanged);
             // 
             // tssSeparator1
             // 
             this.tssSeparator1.Name = "tssSeparator1";
-            this.tssSeparator1.Size = new System.Drawing.Size(6, 28);
+            this.tssSeparator1.Size = new System.Drawing.Size(6, 31);
             // 
-            // tsbClose
+            // entityList
             // 
-            this.tsbClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbClose.Name = "tsbClose";
-            this.tsbClose.Size = new System.Drawing.Size(86, 25);
-            this.tsbClose.Text = "Close this tool";
-            this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
-            // 
-            // tsbSample
-            // 
-            this.tsbSample.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.tsbSample.Name = "tsbSample";
-            this.tsbSample.Size = new System.Drawing.Size(28, 25);
-            this.tsbSample.Text = "⟳";
-            this.tsbSample.Click += new System.EventHandler(this.tsbSample_Click);
-            // 
-            // entityListView
-            // 
-            this.entityListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.entityList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.EntityHeaderName});
-            this.entityListView.FullRowSelect = true;
-            this.entityListView.HideSelection = false;
-            this.entityListView.Location = new System.Drawing.Point(3, 29);
-            this.entityListView.MultiSelect = false;
-            this.entityListView.Name = "entityListView";
-            this.entityListView.Size = new System.Drawing.Size(279, 268);
-            this.entityListView.TabIndex = 5;
-            this.entityListView.UseCompatibleStateImageBehavior = false;
-            this.entityListView.View = System.Windows.Forms.View.Details;
-            this.entityListView.SelectedIndexChanged += new System.EventHandler(this.entityListView_SelectedIndexChanged);
+            this.entityList.FullRowSelect = true;
+            this.entityList.HideSelection = false;
+            this.entityList.Location = new System.Drawing.Point(3, 29);
+            this.entityList.MultiSelect = false;
+            this.entityList.Name = "entityList";
+            this.entityList.Size = new System.Drawing.Size(279, 268);
+            this.entityList.TabIndex = 5;
+            this.entityList.UseCompatibleStateImageBehavior = false;
+            this.entityList.View = System.Windows.Forms.View.Details;
+            this.entityList.SelectedIndexChanged += new System.EventHandler(this.entityListView_SelectedIndexChanged);
             // 
             // EntityHeaderName
             // 
             this.EntityHeaderName.Text = "Name";
             // 
-            // attributeList
+            // entityFieldList
             // 
-            this.attributeList.CheckOnClick = true;
-            this.attributeList.FormattingEnabled = true;
-            this.attributeList.Location = new System.Drawing.Point(288, 29);
-            this.attributeList.Name = "attributeList";
-            this.attributeList.Size = new System.Drawing.Size(268, 229);
-            this.attributeList.TabIndex = 6;
-            this.attributeList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.attributeList_CheckedItemChanged);
+            this.entityFieldList.CheckOnClick = true;
+            this.entityFieldList.FormattingEnabled = true;
+            this.entityFieldList.Location = new System.Drawing.Point(288, 29);
+            this.entityFieldList.Name = "entityFieldList";
+            this.entityFieldList.Size = new System.Drawing.Size(268, 229);
+            this.entityFieldList.TabIndex = 6;
+            this.entityFieldList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.attributeList_CheckedItemChanged);
+            this.entityFieldList.Paint += new System.Windows.Forms.PaintEventHandler(this.checkBoxStyle);
             // 
             // dropChangesButton
             // 
@@ -136,14 +124,40 @@ namespace DeprecationTool
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
             // 
+            // tsReload
+            // 
+            this.tsReload.Image = global::DeprecationTool.Properties.Resources.ReloadIcon;
+            this.tsReload.Name = "tsReload";
+            this.tsReload.Size = new System.Drawing.Size(86, 28);
+            this.tsReload.Text = "Reload all";
+            this.tsReload.Click += new System.EventHandler(this.reload_click);
+            // 
+            // tsbClose
+            // 
+            this.tsbClose.Image = global::DeprecationTool.Properties.Resources.CloseIcon;
+            this.tsbClose.Name = "tsbClose";
+            this.tsbClose.Size = new System.Drawing.Size(88, 28);
+            this.tsbClose.Text = "Close tool";
+            this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
+            // 
+            // toolStripButton4
+            // 
+            this.toolStripButton4.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(28, 28);
+            this.toolStripButton4.Text = "toolStripButton4";
+            // 
             // DeprecateControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.applyButton);
             this.Controls.Add(this.dropChangesButton);
-            this.Controls.Add(this.attributeList);
-            this.Controls.Add(this.entityListView);
+            this.Controls.Add(this.entityFieldList);
+            this.Controls.Add(this.entityList);
             this.Controls.Add(this.toolStripMenu);
             this.Name = "DeprecateControl";
             this.Size = new System.Drawing.Size(559, 300);
@@ -158,13 +172,17 @@ namespace DeprecationTool
         #endregion
         private System.Windows.Forms.ToolStrip toolStripMenu;
         private System.Windows.Forms.ToolStripButton tsbClose;
-        private System.Windows.Forms.ToolStripButton tsbSample;
+        private System.Windows.Forms.ToolStripButton tsReload;
         private System.Windows.Forms.ToolStripSeparator tssSeparator1;
-        private System.Windows.Forms.ListView entityListView;
-        private System.Windows.Forms.CheckedListBox attributeList;
+        private System.Windows.Forms.ListView entityList;
+        private System.Windows.Forms.CheckedListBox entityFieldList;
         private System.Windows.Forms.Button dropChangesButton;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.ToolStripComboBox solutionComboBox;
         private ColumnHeader EntityHeaderName;
+        private ToolStripButton toolStripButton1;
+        private ToolStripButton toolStripButton2;
+        private ToolStripButton toolStripButton3;
+        private ToolStripButton toolStripButton4;
     }
 }

@@ -14,7 +14,7 @@ namespace DeprecationTool.Models
         public IEnumerable<Deprecate.MetaData> SelectedAttributes { get; set; }
         public string SelectedSolution { get; set; } = string.Empty;
         public int CurrentSolutionIdx { get; set; } = -1;
-        public ListViewItem CurrentEntity { get; set; } = null;
+        public ListViewItem CurrentEntityListItem { get; set; } = null;
 
         public bool HasPendingChanges => SelectedAttributes.Any();
 

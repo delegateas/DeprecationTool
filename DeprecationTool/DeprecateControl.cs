@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DeprecationTool.Models;
@@ -13,6 +14,7 @@ using XrmToolBox.Extensibility;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk;
 using McTools.Xrm.Connection;
+using Microsoft.Xrm.Sdk.Messages;
 
 namespace DeprecationTool
 {
@@ -20,8 +22,8 @@ namespace DeprecationTool
     {
         private Settings pluginSettings;
         private FormState formState;
-        private IDictionary<string, IDictionary<string, Lib.Deprecate.MetaData[]>> solutionsWithData;
-        private Lib.Deprecate.SolutionData[] solutions;
+        private IDictionary<string, IDictionary<string, Deprecate.MetaData[]>> solutionsWithData;
+        private Deprecate.SolutionData[] solutions;
 
         public DeprecateControl()
         {
@@ -43,7 +45,10 @@ namespace DeprecationTool
             {
                 LogInfo("Settings found and loaded");
             }
-    
+
+            if(pluginSettings.FieldPrefix == string.Empty)
+                SettingsPrompt.SettingsDialog("Test", "123", pluginSettings);
+
             formState = new FormState();
             LoadData();
         }
@@ -53,7 +58,7 @@ namespace DeprecationTool
             CloseTool();
         }
 
-        private void tsbSample_Click(object sender, EventArgs e)
+        private void reload_click(object sender, EventArgs e)
         {
             // The ExecuteMethod method handles connecting to an
             // organization if XrmToolBox is not yet connected
@@ -87,9 +92,9 @@ namespace DeprecationTool
             });
         }
 
-        private void LoadData()
+        private WorkAsyncInfo fetchEntities(bool b)
         {
-            var fetchEntities = new WorkAsyncInfo
+            return new WorkAsyncInfo
             {
                 Message = "Fetching entities and attributes",
                 Work = (worker, args) =>
@@ -107,10 +112,17 @@ namespace DeprecationTool
                     {
                         solutionsWithData = result;
                         populateSolutionsComboBox();
+                        if (b)
+                        {
+                            renderAttributeView(solutionsWithData[formState.SelectedSolution][formState.CurrentEntityListItem.SubItems[0].Text]);
+                        }
                     }
                 }
             };
+        }
 
+        private void LoadData()
+        {
             WorkAsync(new WorkAsyncInfo
             {
                 Message = "Fetching solutions",
@@ -128,7 +140,7 @@ namespace DeprecationTool
                     if (args.Result is Deprecate.SolutionData[] result)
                     {
                         solutions = result;
-                        WorkAsync(fetchEntities);
+                        WorkAsync(fetchEntities(false));
                     }
                 }
             });            
@@ -149,17 +161,17 @@ namespace DeprecationTool
 
         private void populateEntitiesListView(string solLogicalName)
         {
-            entityListView.Items.Clear();
+            entityList.Items.Clear();
 
             if (!solutionsWithData.TryGetValue(solLogicalName, out var res)) return;
 
             foreach (var item in res.Keys)
-                entityListView.Items.Add(new ListViewItem(new string[] { item }));
+                entityList.Items.Add(new ListViewItem(new string[] { item }));
         }
 
         private void clearAttributeList()
         {
-            attributeList.Items.Clear();
+            entityFieldList.Items.Clear();
         }
 
         /// <summary>
@@ -187,12 +199,15 @@ namespace DeprecationTool
             }
         }
 
-        private void renderAttributeView(Lib.Deprecate.MetaData[] entity)
+        private void renderAttributeView(Deprecate.MetaData[] fields)
         {
             clearAttributeList();
 
-            foreach (var attr in entity)
-                attributeList.Items.Add(attr, attr.isDeprecated);
+            foreach (var field in fields)
+            {
+                CheckState state = (CheckState) field.deprecationState;
+                entityFieldList.Items.Add(field, state);
+            }
 
         }
 
@@ -202,7 +217,6 @@ namespace DeprecationTool
                 "You have pending changes, do you wish to discard them?",
                 "You have changed deprecation states that are not saved, do you wish to discard?",
                 MessageBoxButtons.YesNo) == DialogResult.Yes;
-
         }
 
         private void solutionComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -240,17 +254,23 @@ namespace DeprecationTool
                 if (!discardChangesMessage() && formState.CurrentSolutionIdx != -1)
                 {
                     currentlySelected.Selected = false;
-                    formState.CurrentEntity.Selected = true;
+                    formState.CurrentEntityListItem.Selected = true;
                 }
             }
 
-            formState.CurrentEntity = currentlySelected;
+            formState.CurrentEntityListItem = currentlySelected;
 
-            if (!solutionsWithData.TryGetValue(formState.SelectedSolution, out var selectedSolution)) return;
-            if (!selectedSolution.TryGetValue(currentlySelected.SubItems[0].Text, out var selectedEntity)) return;
+            var selectedEntityFields = getEntityFields(currentlySelected);
 
-            renderAttributeView(selectedEntity);
+            renderAttributeView(selectedEntityFields);
 
+        }
+
+        private Deprecate.MetaData[] getEntityFields(ListViewItem currentlySelected)
+        {
+            if (!solutionsWithData.TryGetValue(formState.SelectedSolution, out var selectedSolution)) return null;
+            if (!selectedSolution.TryGetValue(currentlySelected.SubItems[0].Text, out var selectedEntityFields)) return null;
+            return selectedEntityFields;
         }
 
         private void dropChangesButton_Click(object sender, EventArgs e)
@@ -260,7 +280,37 @@ namespace DeprecationTool
 
         private void applyButton_Click(object sender, EventArgs e)
         {
+            var aList = entityFieldList;
+            var attrWithCheckedState =  entityFieldList.Items
+                .Cast<Deprecate.MetaData>()
+                .Select((metaData, i) => 
+                    new Deprecate.MetaDataWithCheck(
+                        metaData,
+                        (Deprecate.DeprecationState) aList.GetItemCheckState(i))
+                )
+                .ToArray();
 
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = "Deprecating fields",
+                Work = (worker, args) =>
+                {
+                    args.Result = Deprecate.decideOperations(Service, attrWithCheckedState, pluginSettings.FieldPrefix);
+                },
+                PostWorkCallBack = (args) =>
+                {
+                    if (args.Error != null)
+                    {
+                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    if (args.Result is ExecuteMultipleResponse[] result)
+                    {
+                        //Thread.Sleep(2000);
+                        //WorkAsync(fetchEntities(true));
+                    }
+                }
+            });            
         }
 
         private void attributeList_CheckedItemChanged(object sender, ItemCheckEventArgs e)
@@ -268,6 +318,15 @@ namespace DeprecationTool
             //var fieldList = (CheckedListBox) sender;
             //var selectedFields = fieldList.SelectedItems.Cast<Deprecate.MetaData>();
             //formState.SelectedAttributes = selectedFields;
+        }
+        private void checkBoxStyle(object sender, PaintEventArgs e)
+        {
+            CheckBox s = (CheckBox)sender;
+            if (s.CheckState == CheckState.Indeterminate)
+            {
+                e.Graphics.FillRectangle(Brushes.White, new Rectangle(new Point(4, 4), new Size(6, 8)));
+                e.Graphics.DrawString("-", s.Font, Brushes.Black, new Point(1, 1));
+            }
         }
 
 

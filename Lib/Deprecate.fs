@@ -11,13 +11,20 @@ open Microsoft.Xrm.Sdk.Query
 open Microsoft.Xrm.Sdk.Metadata
 
 module Deprecate =
+  open System.Web.UI.WebControls.WebParts
+
+  type DeprecationState = 
+                        | Favored=0 // same as not deprecated
+                        | Deprecated=1
+                        | Partial=2 // Partial deprecation means only the name has been prefixed as deprecated.
+
   type LogicalName = string
 
   type MetaData = {
-      entityLName: LogicalName
-      locale: int
-      attribute: AttributeMetadata
-      isDeprecated: bool
+      entityLName: LogicalName;
+      locale: int;
+      attribute: AttributeMetadata;
+      mutable deprecationState: DeprecationState;
   } with 
     override this.ToString() =
       this.attribute.SchemaName
@@ -35,6 +42,11 @@ module Deprecate =
   } with
     override this.ToString() = 
       this.Display
+   
+  type MetaDataWithCheck = {
+    metaData: MetaData
+    isChecked: DeprecationState
+  }
   
 //  type ResDict = IDictionary<String, IDictionary<string, MetaData[]>>
 
@@ -42,13 +54,10 @@ module Deprecate =
 
   type SolutionMetaDataMap = Map<LogicalName, EntityMetaDataMap>
 
-  type DeprecationState = Deprecated
-                        | Partial // Partial deprecation means that the field hase 2 of 3 deprecation attributes
-                        | Favored /// same as not deprecated
 
-  type DeprecationActions = DescriptionStamp
-                          | SearchableToggle
-                          | DisplayNamePrefix
+  type Action = Deprecate of Data: MetaData
+              | Favor of Data : MetaData
+
 
   let labelToString (label: Label) =
     label.UserLocalizedLabel.Label.ToString()
@@ -76,20 +85,29 @@ module Deprecate =
 
   let isDeprecated (attr: AttributeMetadata) prefix =
     (isSearchable attr) && (hasDeprecationDescription attr) && (startsWithPrefix attr prefix)
+  
+  let isPartiallyDeprecated (attr: AttributeMetadata) prefix =
+    (startsWithPrefix attr prefix)
+
+  let getDeprecationState (attr: AttributeMetadata) prefix =
+    match attr with
+    | x when (isDeprecated x prefix) -> DeprecationState.Deprecated
+    | x when (isPartiallyDeprecated x prefix) -> DeprecationState.Partial
+    | _ -> DeprecationState.Favored
+
 
   let getResponse<'T when 'T :> OrganizationResponse> (proxy:IOrganizationService) request =
     (proxy.Execute(request)) :?> 'T
   
   // if prefix is empty, it crashes. 
   // We need to check the given attribute metadata contains info or we can get a null pointer exeception.
-  let metadataToDeprecationType entityLName prefix (attr: AttributeMetadata) =
+  let convertMetaDataType entityLName prefix (attr: AttributeMetadata) =
       {
           MetaData.entityLName = entityLName
           locale = attr.Description.UserLocalizedLabel.LanguageCode
           attribute = attr
-          isDeprecated = (isDeprecated attr prefix) 
+          deprecationState = (getDeprecationState attr prefix) 
       }
-
 
   let getEntityAttributesFromId (proxy:IOrganizationService) metadataId filterPrefix deprecationPrefix =
     let request = RetrieveEntityRequest()
@@ -98,7 +116,7 @@ module Deprecate =
     request.RetrieveAsIfPublished <- true
 
     let resp = getResponse<RetrieveEntityResponse> proxy request
-    let curriedDeprecationType = metadataToDeprecationType resp.EntityMetadata.LogicalName deprecationPrefix
+    let curriedDeprecationType = convertMetaDataType resp.EntityMetadata.LogicalName deprecationPrefix
 
     let filteredMetaData = 
       resp.EntityMetadata.Attributes 
@@ -179,15 +197,13 @@ module Deprecate =
     )
     |> Array.ofSeq
 
-  let attributeUpdateRequest (proxy:IOrganizationService) (modifiedAttrMetadata: MetaData) =
+  let attributeUpdateRequest (modifiedAttrMetadata: MetaData) =
     let req = UpdateAttributeRequest()
     req.Attribute <- modifiedAttrMetadata.attribute
     req.EntityName <- modifiedAttrMetadata.entityLName
     req.MergeLabels <- false
 
-    (proxy.Execute(req)) :?> UpdateAttributeResponse
-
-
+    req
 
   let getDescriptionSearchable (description: string) = 
     match Regex.Match(description, deprecationStampPattern).Groups.["searchable"].Value with
@@ -239,33 +255,62 @@ module Deprecate =
       2. Searchable is set to no (IsValidForAdvancedFind)
       3. The description has a deprecation datetime-stamp
   *)
-  let deprecateAttribute (proxy:IOrganizationService) (attrMetadata: MetaData) (displayNamePrefix: string) =
+  let deprecateAttribute (attrMetadata: MetaData) (displayNamePrefix: string) =
     // null check af attrmetadata?
     let attr = attrMetadata.attribute
+    attrMetadata.deprecationState <- DeprecationState.Deprecated
 
     let newDescription = 
       createOrUpdateDescriptionStamp(labelToString attr.Description) attr.IsValidForAdvancedFind.Value
     attr.Description <- Label(newDescription, attrMetadata.locale)
+    attr.Description.UserLocalizedLabel <- LocalizedLabel(newDescription, attrMetadata.locale)
 
     attr.IsValidForAdvancedFind <- BooleanManagedProperty(false)
 
     let newDisplayName = safeAddDeprecationPrefix (labelToString attr.DisplayName) displayNamePrefix
     attr.DisplayName <- Label(newDisplayName, attrMetadata.locale)
+    attr.DisplayName.UserLocalizedLabel <- LocalizedLabel(newDisplayName, attrMetadata.locale)
 
-    (attributeUpdateRequest proxy attrMetadata).Results <> null
+    (attributeUpdateRequest attrMetadata)
 
   /// If we wish to remove the deprecation of the attribute, we favor it
-  let favorAttribute (proxy:IOrganizationService) (attrMetadata: MetaData) (displayNamePrefix: string) =
+  let favorAttribute (attrMetadata: MetaData) (displayNamePrefix: string) =
     let attr = attrMetadata.attribute
+    attrMetadata.deprecationState <- DeprecationState.Favored
 
     let previousSearchable = getDescriptionSearchable (labelToString attr.Description)
     attr.IsValidForAdvancedFind <- BooleanManagedProperty(previousSearchable)
 
     let newDescription = removeDescriptionTimestamp (labelToString attr.Description)
     attr.Description <- Label(newDescription, attrMetadata.locale)
+    attr.Description.UserLocalizedLabel <- LocalizedLabel(newDescription, attrMetadata.locale)
 
     let newDisplayName = safeRemoveDeprecationPrefix(labelToString attr.DisplayName) displayNamePrefix
     attr.DisplayName <- Label(newDisplayName, attrMetadata.locale)
+    attr.DisplayName.UserLocalizedLabel <- LocalizedLabel(newDisplayName, attrMetadata.locale)
 
-    (attributeUpdateRequest proxy attrMetadata).Results <> null
+    attributeUpdateRequest attrMetadata
+
+
+  let decideAction (attr: MetaData) = 
+    match attr.deprecationState  with
+    | Deprecated -> Favor attr
+    | _ -> Deprecate attr
+
+  let buildAction (prefix: string) (attr: Action) =
+    match attr with
+    | Deprecate x -> deprecateAttribute x prefix
+    | Favor x -> favorAttribute x prefix
+  
+  //let isDeprecationState = function DeprecationState.Deprecated _ -> true | _ -> false
+
+  let decideOperations (proxy: IOrganizationService) (attrs: MetaDataWithCheck[]) (prefix: string) =
+    let builderWithPrefix = buildAction prefix
+    attrs
+    |> Array.filter(fun x -> x.isChecked <> x.metaData.deprecationState)
+    |> Array.Parallel.map(fun x -> decideAction x.metaData)
+    |> Array.Parallel.map(fun x -> builderWithPrefix x)
+    |> Array.Parallel.map(fun x -> x :> OrganizationRequest)
+    |> Array.chunkBySize(1000)
+    |> Array.map(fun x -> executeRequests proxy x)
 
