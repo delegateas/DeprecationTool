@@ -11,8 +11,6 @@ open Microsoft.Xrm.Sdk.Query
 open Microsoft.Xrm.Sdk.Metadata
 
 module Deprecate =
-  open System.Web.UI.WebControls.WebParts
-
   type DeprecationState = Favored = 0 // same as not deprecated
                         | Deprecated = 1
                         | Partial = 2 // Partial deprecation means only the name has been prefixed as deprecated.

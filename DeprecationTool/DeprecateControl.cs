@@ -60,39 +60,13 @@ namespace DeprecationTool
 
         private void reload_click(object sender, EventArgs e)
         {
-            // The ExecuteMethod method handles connecting to an
-            // organization if XrmToolBox is not yet connected
-            ExecuteMethod(GetAccounts);
+            clearSolutionComboBox();
+            clearAttributeList();
+            clearEntityList();
+            LoadData();
         }
 
-        private void GetAccounts()
-        {
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = "Getting accounts",
-                Work = (worker, args) =>
-                {
-                    args.Result = Service.RetrieveMultiple(new QueryExpression("account")
-                    {
-                        TopCount = 50
-                    });
-                },
-                PostWorkCallBack = (args) =>
-                {
-                    if (args.Error != null)
-                    {
-                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    var result = args.Result as EntityCollection;
-                    if (result != null)
-                    {
-                        MessageBox.Show($"Found {result.Entities.Count} accounts");
-                    }
-                }
-            });
-        }
-
-        private WorkAsyncInfo fetchEntities(bool b)
+        private WorkAsyncInfo fetchEntities()
         {
             return new WorkAsyncInfo
             {
@@ -112,23 +86,19 @@ namespace DeprecationTool
                     {
                         solutionsWithData = result;
                         populateSolutionsComboBox();
-                        if (b)
-                        {
-                            renderAttributeView(solutionsWithData[formState.SelectedSolution][formState.CurrentEntityListItem.SubItems[0].Text]);
-                        }
                     }
                 }
             };
         }
 
-        private void LoadData()
+        private WorkAsyncInfo fetchSolutionsAndEntities()
         {
-            WorkAsync(new WorkAsyncInfo
+            return new WorkAsyncInfo
             {
                 Message = "Fetching solutions",
                 Work = (worker, args) =>
                 {
-                    args.Result = Lib.Deprecate.retrieveSolutionNames(Service, new string[] { "Default" }, "");
+                    args.Result = Lib.Deprecate.retrieveSolutionNames(Service, new string[] {"Default"}, "");
                 },
                 PostWorkCallBack = (args) =>
                 {
@@ -140,14 +110,20 @@ namespace DeprecationTool
                     if (args.Result is Deprecate.SolutionData[] result)
                     {
                         solutions = result;
-                        WorkAsync(fetchEntities(false));
+                        WorkAsync(fetchEntities());
                     }
                 }
-            });            
+            };
+        }
+
+        private void LoadData()
+        {
+            WorkAsync(fetchSolutionsAndEntities());            
         }
 
         private void populateSolutionsComboBox()
         {
+            clearSolutionComboBox();
             foreach(var sol in solutions)
             {
                 var logicalName = sol.uniqueName;
@@ -161,12 +137,21 @@ namespace DeprecationTool
 
         private void populateEntitiesListView(string solLogicalName)
         {
-            entityList.Items.Clear();
-
+            clearEntityList();
             if (!solutionsWithData.TryGetValue(solLogicalName, out var res)) return;
 
             foreach (var item in res.Keys)
                 entityList.Items.Add(new ListViewItem(new string[] { item }));
+        }
+        private void clearSolutionComboBox()
+        {
+            solutionComboBox.SelectedText = string.Empty;
+            solutionComboBox.Items.Clear();
+        }
+
+        private void clearEntityList()
+        {
+            entityList.Items.Clear();
         }
 
         private void clearAttributeList()
