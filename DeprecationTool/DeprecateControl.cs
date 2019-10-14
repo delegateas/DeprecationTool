@@ -269,7 +269,7 @@ namespace DeprecationTool
 
             if (Deprecate.hasPendingChanges(fieldsWithCheckedState()))
             {
-                if (!discardChangesMessage() || formState.CurrentEntityListItem != null)
+                if (!discardChangesMessage() && formState.CurrentEntityListItem != null)
                 {
                     currentlySelected.Selected = false;
                     formState.CurrentEntityListItem.Selected = true;
