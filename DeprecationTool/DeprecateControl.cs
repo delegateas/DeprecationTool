@@ -73,7 +73,7 @@ namespace DeprecationTool
         }
         private void firstTimeSettingsPrompt()
         {
-            if (pluginSettings.DeprecationPrefix == string.Empty)
+            if (string.IsNullOrEmpty(pluginSettings.DeprecationPrefix))
             {
                 settingsPrompt();
             }
@@ -104,7 +104,9 @@ namespace DeprecationTool
                 Message = "Fetching entities and attributes",
                 Work = (worker, args) =>
                 {
-                    args.Result = Lib.Deprecate.retrieveSolutionEntities(Service, solutions, "dg_", "zz_");
+                    args.Result = Lib.Deprecate.retrieveSolutionEntities(Service, solutions, 
+                        pluginSettings.FieldPrefix, 
+                        pluginSettings.DeprecationPrefix);
                 },
                 PostWorkCallBack = (args) =>
                 {
@@ -310,7 +312,7 @@ namespace DeprecationTool
                 Message = "Deprecating fields",
                 Work = (worker, args) =>
                 {
-                    args.Result = Deprecate.decideOperations(Service, attrWithCheckedState, pluginSettings.FieldPrefix);
+                    args.Result = Deprecate.decideAndExecuteOperations(Service, attrWithCheckedState, pluginSettings.DeprecationPrefix);
                 },
                 PostWorkCallBack = (args) =>
                 {

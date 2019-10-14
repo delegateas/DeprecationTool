@@ -15,7 +15,7 @@ namespace DeprecationTool
             Form prompt = new Form()
             {
                 Width = 250,
-                Height = 200,
+                Height = 210,
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 Text = caption,
                 StartPosition = FormStartPosition.CenterScreen
@@ -26,20 +26,22 @@ namespace DeprecationTool
             Label dreprecationPrefixLabel = new Label() { Left = 25, Top = 65, Text = deprecationPrefixStr, Width = 175};
             TextBox deprecationPrefix = new TextBox() { Left = 25, Top = 80, Width = 175 };
 
-            Button confirmation = new Button() { Text = "Save", Left = 25, Width = 175, Top = 120, DialogResult = DialogResult.OK };
+            Label infoText = new Label() { Text = "Reload all after making changes.", Left = 25, Width = 175, Top = 110 };
+            Button confirmation = new Button() { Text = "Save", Left = 25, Width = 175, Top = 125, DialogResult = DialogResult.OK };
 
             if (pluginSettings.FieldPrefix != null)
                 fieldPrefix.Text = pluginSettings.FieldPrefix;
             
             if (pluginSettings.DeprecationPrefix != null)
-                fieldPrefix.Text = pluginSettings.DeprecationPrefix;
+                deprecationPrefix.Text = pluginSettings.DeprecationPrefix;
 
             confirmation.Click += (sender, e) => { prompt.Close(); };
             prompt.Controls.Add(fieldPrefix);
             prompt.Controls.Add(deprecationPrefix);
             prompt.Controls.Add(confirmation);
-            prompt.Controls.Add(fieldPrefixLabel);
             prompt.Controls.Add(dreprecationPrefixLabel);
+            prompt.Controls.Add(fieldPrefixLabel);
+            prompt.Controls.Add(infoText);
             prompt.AcceptButton = confirmation;
 
             // If changes are made, we return a new settings object, if user cancels, return old settings
