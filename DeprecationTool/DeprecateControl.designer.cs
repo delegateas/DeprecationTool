@@ -113,7 +113,7 @@ namespace DeprecationTool
             this.entityList.TabIndex = 5;
             this.entityList.UseCompatibleStateImageBehavior = false;
             this.entityList.View = System.Windows.Forms.View.Details;
-            this.entityList.SelectedIndexChanged += new System.EventHandler(this.entityListView_SelectedIndexChanged);
+            this.entityList.ItemSelectionChanged += new ListViewItemSelectionChangedEventHandler(this.entityListView_SelectedIndexChanged);
             // 
             // EntityHeaderName
             // 

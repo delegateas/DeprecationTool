@@ -296,6 +296,12 @@ module Deprecate =
 
     attributeUpdateRequest attrMetadata
 
+  let pendingChanges (attrs: MetaDataWithCheck[]) =
+    attrs 
+    |> Array.filter(fun x -> x.deprecationState <> x.metaData.deprecationState)
+
+  let hasPendingChanges (attrs: MetaDataWithCheck[]) =
+    (pendingChanges attrs).Length > 0
 
   let decideAction (checkedState: DeprecationState) (attr: MetaData) = 
     match checkedState  with
@@ -310,11 +316,12 @@ module Deprecate =
   
   let decideAndExecuteOperations (proxy: IOrganizationService) (attrs: MetaDataWithCheck[]) (prefix: string) =
     let builderWithPrefix = buildAction prefix
-    attrs
-    |> Array.filter(fun x -> x.deprecationState <> x.metaData.deprecationState)
+
+    pendingChanges attrs
     |> Array.Parallel.map(fun x -> decideAction x.deprecationState x.metaData)
     |> Array.Parallel.map(fun x -> builderWithPrefix x)
     |> Array.Parallel.map(fun x -> x :> OrganizationRequest)
     |> Array.chunkBySize(1000)
     |> Array.map(fun x -> executeRequests proxy x)
+
 

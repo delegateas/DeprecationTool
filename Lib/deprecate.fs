@@ -42,7 +42,7 @@ module Deprecate =
    
   type MetaDataWithCheck = {
     metaData: MetaData
-    isChecked: DeprecationState
+    deprecationState: DeprecationState
   }
   
 //  type ResDict = IDictionary<String, IDictionary<string, MetaData[]>>
@@ -106,6 +106,13 @@ module Deprecate =
           deprecationState = (getDeprecationState attr prefix) 
       }
 
+  let filterValidAttribute (x: AttributeMetadata) =
+       x.Description <> null
+    && x.Description.UserLocalizedLabel <> null
+    && x.DisplayName<> null
+    && x.DisplayName.UserLocalizedLabel <> null
+    && x.IsValidForAdvancedFind <> null
+
   let getEntityAttributesFromId (proxy:IOrganizationService) metadataId filterPrefix deprecationPrefix =
     let request = RetrieveEntityRequest()
     request.MetadataId <- metadataId
@@ -117,6 +124,7 @@ module Deprecate =
 
     let filteredMetaData = 
       resp.EntityMetadata.Attributes 
+      |> Array.filter (fun x -> filterValidAttribute x)
       |> Array.filter (fun x -> x.AttributeOf = null)
       |> Array.filter (fun x -> x.LogicalName.StartsWith(filterPrefix))
       |> Array.map (curriedDeprecationType)
@@ -162,7 +170,7 @@ module Deprecate =
     retrieveMultiple proxy logicalName q
     |> Array.ofSeq
 
-  let retrieveSolutionEntities proxy (solutions: SolutionData[]) entityPrefix deprecationPrefix =
+  let retrieveSolutionEntities proxy (solutions: SolutionData[]) fieldPrefix deprecationPrefix =
     solutions
     |> Array.Parallel.map (fun sol ->
       let solutionComponentFilter = 
@@ -174,7 +182,7 @@ module Deprecate =
         getEntitiesFilter proxy "solutioncomponent" 
           ["solutionid"; "objectid"; "componenttype"] solutionComponentFilter
         |> Array.map (fun sc -> 
-          getEntityAttributesFromId proxy (sc.Attributes.["objectid"] :?> Guid) entityPrefix deprecationPrefix)
+          getEntityAttributesFromId proxy (sc.Attributes.["objectid"] :?> Guid) fieldPrefix deprecationPrefix)
         |> dict
       (sol.uniqueName, entityMetadata)
     )
@@ -250,7 +258,7 @@ module Deprecate =
   (* An attribute is deprecated when 
       1. The display name has been prepended with a deprecation prefix, such as "zz_"
       2. Searchable is set to no (IsValidForAdvancedFind)
-      3. The description has a deprecation datetime-stamp
+      3. The description has a deprecation datetime-stamp defined by our RegExp at the beginning.
   *)
   let deprecateAttribute (attrMetadata: MetaData) (displayNamePrefix: string) =
     // null check af attrmetadata?
@@ -288,26 +296,32 @@ module Deprecate =
 
     attributeUpdateRequest attrMetadata
 
+  let pendingChanges (attrs: MetaDataWithCheck[]) =
+    attrs 
+    |> Array.filter(fun x -> x.deprecationState <> x.metaData.deprecationState)
 
-  let decideAction (attr: MetaData) = 
-    match attr.deprecationState  with
-    | Deprecated -> Favor attr
-    | _ -> Deprecate attr
+  let hasPendingChanges (attrs: MetaDataWithCheck[]) =
+    (pendingChanges attrs).Length > 0
+
+  let decideAction (checkedState: DeprecationState) (attr: MetaData) = 
+    match checkedState  with
+    | DeprecationState.Deprecated -> Deprecate attr
+    | DeprecationState.Favored    -> Favor attr
+    | _ -> Favor attr
 
   let buildAction (prefix: string) (attr: Action) =
     match attr with
     | Deprecate x -> deprecateAttribute x prefix
     | Favor x -> favorAttribute x prefix
   
-  //let isDeprecationState = function DeprecationState.Deprecated _ -> true | _ -> false
-
-  let decideOperations (proxy: IOrganizationService) (attrs: MetaDataWithCheck[]) (prefix: string) =
+  let decideAndExecuteOperations (proxy: IOrganizationService) (attrs: MetaDataWithCheck[]) (prefix: string) =
     let builderWithPrefix = buildAction prefix
-    attrs
-    |> Array.filter(fun x -> x.isChecked <> x.metaData.deprecationState)
-    |> Array.Parallel.map(fun x -> decideAction x.metaData)
+
+    pendingChanges attrs
+    |> Array.Parallel.map(fun x -> decideAction x.deprecationState x.metaData)
     |> Array.Parallel.map(fun x -> builderWithPrefix x)
     |> Array.Parallel.map(fun x -> x :> OrganizationRequest)
     |> Array.chunkBySize(1000)
     |> Array.map(fun x -> executeRequests proxy x)
+
 

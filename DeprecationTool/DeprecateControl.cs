@@ -32,8 +32,6 @@ namespace DeprecationTool
 
         private void DeprecateControl_Load(object sender, EventArgs e)
         {
-            // ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
-
             // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out pluginSettings))
             {
@@ -45,9 +43,6 @@ namespace DeprecationTool
             {
                 LogInfo("Settings found and loaded");
             }
-
-            // remove this
-            // pluginSettings.FieldPrefix = "";
 
             firstTimeSettingsPrompt();
 
@@ -178,6 +173,7 @@ namespace DeprecationTool
         }
         private void clearSolutionComboBox()
         {
+            solutionComboBox.Text = string.Empty;
             solutionComboBox.SelectedText = string.Empty;
             solutionComboBox.Items.Clear();
         }
@@ -241,14 +237,18 @@ namespace DeprecationTool
             var solutionList = (ToolStripComboBox) sender;
             var currentlySelected = (Deprecate.DisplayValue) solutionList.SelectedItem;
             var currentIndex = solutionList.SelectedIndex;
-            if (currentlySelected == null) return;
 
-            if (formState.HasPendingChanges)
+            if (currentlySelected == null) return;
+            if (currentIndex == formState.CurrentSolutionIdx) return;
+
+            if (Deprecate.hasPendingChanges(fieldsWithCheckedState()))
             {
                 if (!discardChangesMessage() && formState.CurrentSolutionIdx != -1)
                 {
                     solutionList.SelectedIndex = formState.CurrentSolutionIdx;
-                }
+                    return;
+                } 
+
             }
 
             formState.CurrentSolutionIdx = currentIndex;
@@ -259,28 +259,29 @@ namespace DeprecationTool
 
         }
 
-        private void entityListView_SelectedIndexChanged(object sender, EventArgs e)
+        private void entityListView_SelectedIndexChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            var entityList = (ListView) sender;
-            var selectedListViewItems = entityList.SelectedItems.Cast<ListViewItem>();
-            var currentlySelected = selectedListViewItems.FirstOrDefault();
+            if (!e.IsSelected || e.Item == formState.CurrentEntityListItem) return;
+
+            var currentlySelected = e.Item;
             if (currentlySelected == null) return;
 
-            if (formState.HasPendingChanges)
+
+            if (Deprecate.hasPendingChanges(fieldsWithCheckedState()))
             {
-                if (!discardChangesMessage() && formState.CurrentSolutionIdx != -1)
+                if (!discardChangesMessage() || formState.CurrentEntityListItem != null)
                 {
                     currentlySelected.Selected = false;
                     formState.CurrentEntityListItem.Selected = true;
-                }
+                    return;
+                } 
+
             }
 
             formState.CurrentEntityListItem = currentlySelected;
 
             var selectedEntityFields = getEntityFields(currentlySelected);
-
             renderAttributeView(selectedEntityFields);
-
         }
 
         private Deprecate.MetaData[] getEntityFields(ListViewItem currentlySelected)
@@ -297,15 +298,7 @@ namespace DeprecationTool
 
         private void applyButton_Click(object sender, EventArgs e)
         {
-            var aList = entityFieldList;
-            var attrWithCheckedState =  entityFieldList.Items
-                .Cast<Deprecate.MetaData>()
-                .Select((metaData, i) => 
-                    new Deprecate.MetaDataWithCheck(
-                        metaData,
-                        (Deprecate.DeprecationState) aList.GetItemCheckState(i))
-                )
-                .ToArray();
+            var attrWithCheckedState = fieldsWithCheckedState();
 
             WorkAsync(new WorkAsyncInfo
             {
@@ -327,7 +320,21 @@ namespace DeprecationTool
                         //WorkAsync(fetchEntities(true));
                     }
                 }
-            });            
+            });
+        }
+
+        private Deprecate.MetaDataWithCheck[] fieldsWithCheckedState()
+        {
+            var aList = entityFieldList;
+            var attrWithCheckedState = entityFieldList.Items
+                .Cast<Deprecate.MetaData>()
+                .Select((metaData, i) =>
+                    new Deprecate.MetaDataWithCheck(
+                        metaData,
+                        (Deprecate.DeprecationState) aList.GetItemCheckState(i))
+                )
+                .ToArray();
+            return attrWithCheckedState;
         }
 
         private void attributeList_CheckedItemChanged(object sender, ItemCheckEventArgs e)
