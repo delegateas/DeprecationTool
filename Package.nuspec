@@ -2,13 +2,17 @@
 <package >
   <metadata>
     <id>Delegate.DeprecationTool</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>Deprecation Tool</title>
     <authors>Delegate A/S,Ahmad Sattar,Magnus Gether Sørensen</authors>
     <owners>Delegateas</owners>
     <copyright>Copyright 2019</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectUrl>https://github.com/delegateas/DeprecationTool</projectUrl>
+    <repository
+      url="https://github.com/delegateas/DeprecationTool.git"
+      type="git"
+      />
     <iconUrl>https://github.com/delegateas/DeprecationTool/blob/3a6acfa577d87b13061e075c8e64db5ae08536c4/delegate_128.png</iconUrl>
     <description>Field deprecation tool for XRM</description>
     <summary>Field deprecation tool for XRM</summary>
