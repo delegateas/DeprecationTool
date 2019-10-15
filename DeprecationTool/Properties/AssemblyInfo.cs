@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Deprecation Tool")]
-[assembly: AssemblyDescription("Deprecation tool for XRM")]
+[assembly: AssemblyDescription("Field deprecation tool for XRM")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Delegate")]
-[assembly: AssemblyProduct("DeprecationTool")]
+[assembly: AssemblyCompany("Delegate A/S, Ahmad Sattar, Magnus Gether Sørensen")]
+[assembly: AssemblyProduct("Deprecation Tool")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
