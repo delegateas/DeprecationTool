@@ -128,7 +128,7 @@ namespace DeprecationTool
             this.entityFieldList.Name = "entityFieldList";
             this.entityFieldList.Size = new System.Drawing.Size(268, 229);
             this.entityFieldList.TabIndex = 6;
-            this.entityFieldList.Paint += new System.Windows.Forms.PaintEventHandler(this.checkBoxStyle);
+            //this.entityFieldList.Paint += new System.Windows.Forms.PaintEventHandler(this.CheckBoxStyle);
             // 
             // resetButton
             // 

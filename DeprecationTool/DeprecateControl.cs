@@ -44,18 +44,18 @@ namespace DeprecationTool
                 LogInfo("Settings found and loaded");
             }
 
-            firstTimeSettingsPrompt();
+            FirstTimeSettingsPrompt();
 
             formState = new FormState();
             LoadData();
         }
 
-        private void settingsPrompt()
+        private void SettingsPrompt()
         {
             Settings res = null;
             
             while(res == null || res.DeprecationPrefix == string.Empty)
-                res = SettingsPrompt.SettingsDialog("Your field prefix (not required)",
+                res = DeprecationTool.SettingsPrompt.SettingsDialog("Your field prefix (not required)",
                     "Your deprecation prefix",
                     "Deprecation settings",
                     pluginSettings);
@@ -66,11 +66,11 @@ namespace DeprecationTool
             SettingsManager.Instance.Save(GetType(), pluginSettings);
 
         }
-        private void firstTimeSettingsPrompt()
+        private void FirstTimeSettingsPrompt()
         {
             if (string.IsNullOrEmpty(pluginSettings.DeprecationPrefix))
             {
-                settingsPrompt();
+                SettingsPrompt();
             }
 
         }
@@ -82,17 +82,17 @@ namespace DeprecationTool
 
         private void reload_click(object sender, EventArgs e)
         {
-            clearSolutionComboBox();
-            clearAttributeList();
-            clearEntityList();
+            ClearSolutionComboBox();
+            ClearAttributeList();
+            ClearEntityList();
             LoadData();
         }
         private void tsSettings_Click(object sender, EventArgs e)
         {
-            settingsPrompt();
+            SettingsPrompt();
         }
 
-        private WorkAsyncInfo fetchEntities()
+        private WorkAsyncInfo FetchEntities()
         {
             return new WorkAsyncInfo
             {
@@ -113,13 +113,13 @@ namespace DeprecationTool
                     if (args.Result is IDictionary<string, IDictionary<string, Deprecate.MetaData[]>> result)
                     {
                         solutionsWithData = result;
-                        populateSolutionsComboBox();
+                        PopulateSolutionsComboBox();
                     }
                 }
             };
         }
 
-        private WorkAsyncInfo fetchSolutionsAndEntities()
+        private WorkAsyncInfo FetchSolutionsAndEntities()
         {
             return new WorkAsyncInfo
             {
@@ -138,7 +138,7 @@ namespace DeprecationTool
                     if (args.Result is Deprecate.SolutionData[] result)
                     {
                         solutions = result;
-                        WorkAsync(fetchEntities());
+                        WorkAsync(FetchEntities());
                     }
                 }
             };
@@ -146,12 +146,12 @@ namespace DeprecationTool
 
         private void LoadData()
         {
-            WorkAsync(fetchSolutionsAndEntities());            
+            WorkAsync(FetchSolutionsAndEntities());            
         }
 
-        private void populateSolutionsComboBox()
+        private void PopulateSolutionsComboBox()
         {
-            clearSolutionComboBox();
+            ClearSolutionComboBox();
             foreach(var sol in solutions)
             {
                 var logicalName = sol.uniqueName;
@@ -163,27 +163,27 @@ namespace DeprecationTool
 
         }
 
-        private void populateEntitiesListView(string solLogicalName)
+        private void PopulateEntitiesListView(string solLogicalName)
         {
-            clearEntityList();
+            ClearEntityList();
             if (!solutionsWithData.TryGetValue(solLogicalName, out var res)) return;
 
             foreach (var item in res.Keys)
                 entityList.Items.Add(new ListViewItem(new string[] { item }));
         }
-        private void clearSolutionComboBox()
+        private void ClearSolutionComboBox()
         {
             solutionComboBox.Text = string.Empty;
             solutionComboBox.SelectedText = string.Empty;
             solutionComboBox.Items.Clear();
         }
 
-        private void clearEntityList()
+        private void ClearEntityList()
         {
             entityList.Items.Clear();
         }
 
-        private void clearAttributeList()
+        private void ClearAttributeList()
         {
             entityFieldList.Items.Clear();
         }
@@ -212,9 +212,9 @@ namespace DeprecationTool
             }
         }
 
-        private void renderAttributeView(Deprecate.MetaData[] fields)
+        private void RenderAttributeView(Deprecate.MetaData[] fields)
         {
-            clearAttributeList();
+            ClearAttributeList();
 
             foreach (var field in fields)
             {
@@ -224,7 +224,7 @@ namespace DeprecationTool
 
         }
 
-        private bool discardChangesMessage()
+        private bool DiscardChangesMessage()
         {
             return MessageBox.Show(
                 "You have pending changes, do you wish to discard them?",
@@ -241,9 +241,9 @@ namespace DeprecationTool
             if (currentlySelected == null) return;
             if (currentIndex == formState.CurrentSolutionIdx) return;
 
-            if (Deprecate.hasPendingChanges(fieldsWithCheckedState()))
+            if (Deprecate.hasPendingChanges(FieldsWithCheckedState()))
             {
-                if (!discardChangesMessage() && formState.CurrentSolutionIdx != -1)
+                if (!DiscardChangesMessage() && formState.CurrentSolutionIdx != -1)
                 {
                     solutionList.SelectedIndex = formState.CurrentSolutionIdx;
                     return;
@@ -254,8 +254,8 @@ namespace DeprecationTool
             formState.CurrentSolutionIdx = currentIndex;
             formState.SelectedSolution = currentlySelected.Value;
             var logicalName = currentlySelected.Value;
-            populateEntitiesListView(logicalName);
-            clearAttributeList();
+            PopulateEntitiesListView(logicalName);
+            ClearAttributeList();
 
         }
 
@@ -267,9 +267,9 @@ namespace DeprecationTool
             if (currentlySelected == null) return;
 
 
-            if (Deprecate.hasPendingChanges(fieldsWithCheckedState()))
+            if (Deprecate.hasPendingChanges(FieldsWithCheckedState()))
             {
-                if (!discardChangesMessage() && formState.CurrentEntityListItem != null)
+                if (!DiscardChangesMessage() && formState.CurrentEntityListItem != null)
                 {
                     currentlySelected.Selected = false;
                     formState.CurrentEntityListItem.Selected = true;
@@ -280,11 +280,11 @@ namespace DeprecationTool
 
             formState.CurrentEntityListItem = currentlySelected;
 
-            var selectedEntityFields = getEntityFields(currentlySelected);
-            renderAttributeView(selectedEntityFields);
+            var selectedEntityFields = GetEntityFields(currentlySelected);
+            RenderAttributeView(selectedEntityFields);
         }
 
-        private Deprecate.MetaData[] getEntityFields(ListViewItem currentlySelected)
+        private Deprecate.MetaData[] GetEntityFields(ListViewItem currentlySelected)
         {
             if (!solutionsWithData.TryGetValue(formState.SelectedSolution, out var selectedSolution)) return null;
             if (!selectedSolution.TryGetValue(currentlySelected.SubItems[0].Text, out var selectedEntityFields)) return null;
@@ -313,7 +313,7 @@ namespace DeprecationTool
 
         private void applyButton_Click(object sender, EventArgs e)
         {
-            var attrWithCheckedState = fieldsWithCheckedState();
+            var attrWithCheckedState = FieldsWithCheckedState();
 
             WorkAsync(new WorkAsyncInfo
             {
@@ -328,17 +328,11 @@ namespace DeprecationTool
                     {
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-
-                    if (args.Result is ExecuteMultipleResponse[] result)
-                    {
-                        //Thread.Sleep(2000);
-                        //WorkAsync(fetchEntities(true));
-                    }
                 }
             });
         }
 
-        private Deprecate.MetaDataWithCheck[] fieldsWithCheckedState()
+        private Deprecate.MetaDataWithCheck[] FieldsWithCheckedState()
         {
             var fieldList = entityFieldList;
             var attrWithCheckedState = entityFieldList.Items
@@ -352,7 +346,8 @@ namespace DeprecationTool
             return attrWithCheckedState;
         }
 
-        private void checkBoxStyle(object sender, PaintEventArgs e)
+/*
+        private void CheckBoxStyle(object sender, PaintEventArgs e)
         {
             CheckBox s = (CheckBox)sender;
             if (s.CheckState == CheckState.Indeterminate)
@@ -361,6 +356,7 @@ namespace DeprecationTool
                 e.Graphics.DrawString("-", s.Font, Brushes.Black, new Point(1, 1));
             }
         }
+*/
 
     }
 }
