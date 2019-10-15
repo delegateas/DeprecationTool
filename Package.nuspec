@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Delegate.DeprecationTool</id>
+    <version>1.0.0</version>
+    <title>Deprecation Tool</title>
+    <authors>Delegate A/S,Ahmad Sattar,Magnus Gether Sørensen</authors>
+    <owners>Delegateas</owners>
+    <copyright>Copyright 2019</copyright>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/delegateas/DeprecationTool</projectUrl>
+    <iconUrl>https://github.com/delegateas/DeprecationTool/blob/3a6acfa577d87b13061e075c8e64db5ae08536c4/delegate_128.png</iconUrl>
+    <description>Field deprecation tool for XRM</description>
+    <summary>Field deprecation tool for XRM</summary>
+    <releaseNotes>
+      1.0.0 - 15/10/2019
+      * Initial version
+    </releaseNotes>
+    <tags>XrmToolBox Delegate XRM CRM D365 F# Deprecate Dynamics</tags>
+    <dependencies>
+      <dependency id="XrmToolBox" version="1.2018.1.20" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="DeprecationTool\bin\Release\ILMerged.DeprecationTool.dll" target="lib\net452\Plugins" />
+  </files>
+</package>
