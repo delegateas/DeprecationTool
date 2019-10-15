@@ -291,9 +291,24 @@ namespace DeprecationTool
             return selectedEntityFields;
         }
 
-        private void dropChangesButton_Click(object sender, EventArgs e)
+        private void resetButton_Click(object sender, EventArgs e)
         {
+            for (var i = 0; i < entityFieldList.Items.Count; i++)
+            {
+                var field = entityFieldList.Items.Cast<Deprecate.MetaData>().ElementAt(i);
 
+                entityFieldList.SetItemCheckState(i, (CheckState) field.deprecationState);
+            }
+        }
+        private void fixPartialButton_Click(object sender, EventArgs e)
+        {
+            for (var i = 0; i < entityFieldList.Items.Count; i++)
+            {
+                var field = entityFieldList.Items.Cast<Deprecate.MetaData>().ElementAt(i);
+                if(field.deprecationState == Deprecate.DeprecationState.Partial)
+                    entityFieldList.SetItemCheckState(i, CheckState.Checked);
+            }
+            
         }
 
         private void applyButton_Click(object sender, EventArgs e)
@@ -325,24 +340,18 @@ namespace DeprecationTool
 
         private Deprecate.MetaDataWithCheck[] fieldsWithCheckedState()
         {
-            var aList = entityFieldList;
+            var fieldList = entityFieldList;
             var attrWithCheckedState = entityFieldList.Items
                 .Cast<Deprecate.MetaData>()
                 .Select((metaData, i) =>
                     new Deprecate.MetaDataWithCheck(
                         metaData,
-                        (Deprecate.DeprecationState) aList.GetItemCheckState(i))
+                        (Deprecate.DeprecationState) fieldList.GetItemCheckState(i))
                 )
                 .ToArray();
             return attrWithCheckedState;
         }
 
-        private void attributeList_CheckedItemChanged(object sender, ItemCheckEventArgs e)
-        {
-            //var fieldList = (CheckedListBox) sender;
-            //var selectedFields = fieldList.SelectedItems.Cast<Deprecate.MetaData>();
-            //formState.SelectedAttributes = selectedFields;
-        }
         private void checkBoxStyle(object sender, PaintEventArgs e)
         {
             CheckBox s = (CheckBox)sender;

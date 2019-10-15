@@ -42,8 +42,9 @@ namespace DeprecationTool
             this.entityList = new System.Windows.Forms.ListView();
             this.EntityHeaderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.entityFieldList = new System.Windows.Forms.CheckedListBox();
-            this.dropChangesButton = new System.Windows.Forms.Button();
+            this.resetButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
+            this.fixPartialButton = new System.Windows.Forms.Button();
             this.toolStripMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -113,7 +114,7 @@ namespace DeprecationTool
             this.entityList.TabIndex = 5;
             this.entityList.UseCompatibleStateImageBehavior = false;
             this.entityList.View = System.Windows.Forms.View.Details;
-            this.entityList.ItemSelectionChanged += new ListViewItemSelectionChangedEventHandler(this.entityListView_SelectedIndexChanged);
+            this.entityList.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.entityListView_SelectedIndexChanged);
             // 
             // EntityHeaderName
             // 
@@ -127,35 +128,45 @@ namespace DeprecationTool
             this.entityFieldList.Name = "entityFieldList";
             this.entityFieldList.Size = new System.Drawing.Size(268, 229);
             this.entityFieldList.TabIndex = 6;
-            this.entityFieldList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.attributeList_CheckedItemChanged);
             this.entityFieldList.Paint += new System.Windows.Forms.PaintEventHandler(this.checkBoxStyle);
             // 
-            // dropChangesButton
+            // resetButton
             // 
-            this.dropChangesButton.Location = new System.Drawing.Point(288, 267);
-            this.dropChangesButton.Name = "dropChangesButton";
-            this.dropChangesButton.Size = new System.Drawing.Size(95, 23);
-            this.dropChangesButton.TabIndex = 7;
-            this.dropChangesButton.Text = "Drop changes";
-            this.dropChangesButton.UseVisualStyleBackColor = true;
-            this.dropChangesButton.Click += new System.EventHandler(this.dropChangesButton_Click);
+            this.resetButton.Location = new System.Drawing.Point(288, 267);
+            this.resetButton.Name = "resetButton";
+            this.resetButton.Size = new System.Drawing.Size(48, 23);
+            this.resetButton.TabIndex = 7;
+            this.resetButton.Text = "Reset";
+            this.resetButton.UseVisualStyleBackColor = true;
+            this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
             // 
             // applyButton
             // 
-            this.applyButton.Location = new System.Drawing.Point(440, 267);
+            this.applyButton.Location = new System.Drawing.Point(498, 267);
             this.applyButton.Name = "applyButton";
-            this.applyButton.Size = new System.Drawing.Size(116, 23);
+            this.applyButton.Size = new System.Drawing.Size(58, 23);
             this.applyButton.TabIndex = 8;
-            this.applyButton.Text = "Apply Deprecations";
+            this.applyButton.Text = "Apply";
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
+            // 
+            // fixPartialButton
+            // 
+            this.fixPartialButton.Location = new System.Drawing.Point(382, 267);
+            this.fixPartialButton.Name = "fixPartialButton";
+            this.fixPartialButton.Size = new System.Drawing.Size(60, 23);
+            this.fixPartialButton.TabIndex = 9;
+            this.fixPartialButton.Text = "Fix Partial";
+            this.fixPartialButton.UseVisualStyleBackColor = true;
+            this.fixPartialButton.Click += new System.EventHandler(this.fixPartialButton_Click);
             // 
             // DeprecateControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.fixPartialButton);
             this.Controls.Add(this.applyButton);
-            this.Controls.Add(this.dropChangesButton);
+            this.Controls.Add(this.resetButton);
             this.Controls.Add(this.entityFieldList);
             this.Controls.Add(this.entityList);
             this.Controls.Add(this.toolStripMenu);
@@ -176,7 +187,7 @@ namespace DeprecationTool
         private System.Windows.Forms.ToolStripSeparator tssSeparator1;
         private System.Windows.Forms.ListView entityList;
         private System.Windows.Forms.CheckedListBox entityFieldList;
-        private System.Windows.Forms.Button dropChangesButton;
+        private System.Windows.Forms.Button resetButton;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.ToolStripComboBox solutionComboBox;
         private ColumnHeader EntityHeaderName;
@@ -184,5 +195,6 @@ namespace DeprecationTool
         private ToolStripButton toolStripButton2;
         private ToolStripButton toolStripButton3;
         private ToolStripButton tsSettings;
+        private Button fixPartialButton;
     }
 }
