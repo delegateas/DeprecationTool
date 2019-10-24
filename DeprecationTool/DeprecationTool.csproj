@@ -209,9 +209,9 @@
 -->
   <Target Name="AfterBuild">
     <ItemGroup>
+      <InputAssemblies Include="$(TargetPath)" />
       <InputAssemblies Include="$(TargetDir)Lib.dll" />
       <InputAssemblies Include="$(TargetDir)FSharp.Core.dll" />
-      <InputAssemblies Include="$(TargetPath)" />
     </ItemGroup>
     <Exec Command="$(ILRepack) /parallel /keyfile:../delegate.snk /out:$(TargetDir)ILMerged.$(TargetFileName) /lib:$(TargetDir) @(InputAssemblies -> '%(Identity)', ' ')" />
   </Target>
