@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Delegate.DeprecationTool</id>
-    <version>1.0.4.0</version>
+    <version>1.0.5</version>
     <title>Deprecation Tool</title>
     <authors>Delegate A/S,Ahmad Sattar,Magnus Gether Sørensen</authors>
     <owners>Delegateas</owners>
@@ -18,8 +18,9 @@
     <description>Field deprecation tool for XRM</description>
     <summary>Field deprecation tool for XRM</summary>
     <releaseNotes>
-      1.0.4.0 - 24/10/2019
-      * Bump assembly version
+      1.0.5 - 24/10/2019
+      * Change merged assembly version
+      * Fix crash on load without an org.
       1.0.2 - 17/10/2019
       * Fix icon url
       1.0.0 - 15/10/2019

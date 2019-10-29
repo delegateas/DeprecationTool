@@ -39,7 +39,7 @@ namespace DeprecationTool
             FirstTimeSettingsPrompt();
 
             formState = new FormState();
-            LoadData();
+            ExecuteMethod(LoadData);
         }
 
         private void SettingsPrompt()
