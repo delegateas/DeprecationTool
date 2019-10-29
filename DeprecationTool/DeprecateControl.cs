@@ -73,7 +73,7 @@ namespace DeprecationTool
             ClearSolutionComboBox();
             ClearAttributeList();
             ClearEntityList();
-            LoadData();
+            ExecuteMethod(LoadData);
         }
 
         private void tsSettings_Click(object sender, EventArgs e)
