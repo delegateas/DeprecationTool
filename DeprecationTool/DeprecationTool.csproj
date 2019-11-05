@@ -213,6 +213,6 @@
       <InputAssemblies Include="$(TargetDir)Lib.dll" />
       <InputAssemblies Include="$(TargetDir)FSharp.Core.dll" />
     </ItemGroup>
-    <Exec Command="$(ILRepack) /parallel /keyfile:../delegate.snk /out:$(TargetDir)ILMerged.$(TargetFileName) /lib:$(TargetDir) @(InputAssemblies -> '%(Identity)', ' ')" />
+    <Exec Command="$(ILRepack) /parallel /out:$(TargetDir)ILMerged.$(TargetFileName) /lib:$(TargetDir) @(InputAssemblies -> '%(Identity)', ' ')" />
   </Target>
 </Project>
