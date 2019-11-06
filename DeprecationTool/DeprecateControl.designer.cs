@@ -36,9 +36,6 @@ namespace DeprecationTool
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.solutionComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.tssSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsReload = new System.Windows.Forms.ToolStripButton();
-            this.tsbClose = new System.Windows.Forms.ToolStripButton();
-            this.tsSettings = new System.Windows.Forms.ToolStripButton();
             this.entityList = new System.Windows.Forms.ListView();
             this.EntityHeaderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.entityFieldList = new System.Windows.Forms.CheckedListBox();
@@ -46,6 +43,10 @@ namespace DeprecationTool
             this.applyButton = new System.Windows.Forms.Button();
             this.fixPartialButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.tsReload = new System.Windows.Forms.ToolStripButton();
+            this.tsClose = new System.Windows.Forms.ToolStripButton();
+            this.tsSettings = new System.Windows.Forms.ToolStripButton();
+            this.tsInfo = new System.Windows.Forms.ToolStripButton();
             this.toolStripMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -60,8 +61,9 @@ namespace DeprecationTool
             this.solutionComboBox,
             this.tssSeparator1,
             this.tsReload,
-            this.tsbClose,
-            this.tsSettings});
+            this.tsSettings,
+            this.tsInfo,
+            this.tsClose});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
             this.toolStripMenu.Size = new System.Drawing.Size(745, 31);
@@ -73,38 +75,13 @@ namespace DeprecationTool
             this.solutionComboBox.DropDownWidth = 271;
             this.solutionComboBox.Name = "solutionComboBox";
             this.solutionComboBox.Size = new System.Drawing.Size(360, 31);
+            this.solutionComboBox.ToolTipText = "Solutions when org. is loaded";
             this.solutionComboBox.SelectedIndexChanged += new System.EventHandler(this.solutionComboBox_SelectedIndexChanged);
             // 
             // tssSeparator1
             // 
             this.tssSeparator1.Name = "tssSeparator1";
             this.tssSeparator1.Size = new System.Drawing.Size(6, 31);
-            // 
-            // tsReload
-            // 
-            this.tsReload.Image = global::DeprecationTool.Properties.Resources.ReloadIcon;
-            this.tsReload.Name = "tsReload";
-            this.tsReload.Size = new System.Drawing.Size(104, 28);
-            this.tsReload.Text = "Reload all";
-            this.tsReload.Click += new System.EventHandler(this.reload_click);
-            // 
-            // tsbClose
-            // 
-            this.tsbClose.Image = global::DeprecationTool.Properties.Resources.CloseIcon;
-            this.tsbClose.Name = "tsbClose";
-            this.tsbClose.Size = new System.Drawing.Size(104, 28);
-            this.tsbClose.Text = "Close tool";
-            this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
-            // 
-            // tsSettings
-            // 
-            this.tsSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsSettings.Image = ((System.Drawing.Image)(resources.GetObject("tsSettings.Image")));
-            this.tsSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsSettings.Name = "tsSettings";
-            this.tsSettings.Size = new System.Drawing.Size(28, 28);
-            this.tsSettings.Text = "tsSettings";
-            this.tsSettings.Click += new System.EventHandler(this.tsSettings_Click);
             // 
             // entityList
             // 
@@ -143,6 +120,7 @@ namespace DeprecationTool
             // 
             this.resetButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.resetButton.Enabled = false;
             this.resetButton.Location = new System.Drawing.Point(8, 9);
             this.resetButton.Margin = new System.Windows.Forms.Padding(4);
             this.resetButton.Name = "resetButton";
@@ -156,6 +134,7 @@ namespace DeprecationTool
             // 
             this.applyButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.applyButton.Enabled = false;
             this.applyButton.Location = new System.Drawing.Point(293, 9);
             this.applyButton.Margin = new System.Windows.Forms.Padding(4);
             this.applyButton.Name = "applyButton";
@@ -168,6 +147,7 @@ namespace DeprecationTool
             // fixPartialButton
             // 
             this.fixPartialButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.fixPartialButton.Enabled = false;
             this.fixPartialButton.Location = new System.Drawing.Point(145, 9);
             this.fixPartialButton.Margin = new System.Windows.Forms.Padding(4);
             this.fixPartialButton.Name = "fixPartialButton";
@@ -197,6 +177,39 @@ namespace DeprecationTool
             this.splitContainer1.SplitterDistance = 293;
             this.splitContainer1.TabIndex = 10;
             // 
+            // tsReload
+            // 
+            this.tsReload.Image = global::DeprecationTool.Properties.Resources.ReloadIcon;
+            this.tsReload.Name = "tsReload";
+            this.tsReload.Size = new System.Drawing.Size(104, 28);
+            this.tsReload.Text = "Reload all";
+            this.tsReload.Click += new System.EventHandler(this.reload_click);
+            // 
+            // tsClose
+            // 
+            this.tsClose.Image = global::DeprecationTool.Properties.Resources.CloseIcon;
+            this.tsClose.Name = "tsClose";
+            this.tsClose.Size = new System.Drawing.Size(73, 28);
+            this.tsClose.Text = "Close";
+            this.tsClose.Click += new System.EventHandler(this.tsbClose_Click);
+            // 
+            // tsSettings
+            // 
+            this.tsSettings.Image = global::DeprecationTool.Properties.Resources.SettingsIcon;
+            this.tsSettings.Name = "tsSettings";
+            this.tsSettings.Size = new System.Drawing.Size(90, 28);
+            this.tsSettings.Text = "Settings";
+            this.tsSettings.ToolTipText = "Plugin info";
+            this.tsSettings.Click += new System.EventHandler(this.tsSettings_Click);
+            // 
+            // tsInfo
+            // 
+            this.tsInfo.Image = ((System.Drawing.Image)(resources.GetObject("tsInfo.Image")));
+            this.tsInfo.Name = "tsInfo";
+            this.tsInfo.Size = new System.Drawing.Size(63, 28);
+            this.tsInfo.Text = "Info";
+            this.tsInfo.Click += new System.EventHandler(this.tsInfo_Click);
+            // 
             // DeprecateControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -221,7 +234,7 @@ namespace DeprecationTool
 
         #endregion
         private System.Windows.Forms.ToolStrip toolStripMenu;
-        private System.Windows.Forms.ToolStripButton tsbClose;
+        private System.Windows.Forms.ToolStripButton tsClose;
         private System.Windows.Forms.ToolStripButton tsReload;
         private System.Windows.Forms.ToolStripSeparator tssSeparator1;
         private System.Windows.Forms.ListView entityList;
@@ -236,5 +249,6 @@ namespace DeprecationTool
         private ToolStripButton tsSettings;
         private Button fixPartialButton;
         private SplitContainer splitContainer1;
+        private ToolStripButton tsInfo;
     }
 }

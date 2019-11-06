@@ -33,13 +33,15 @@ namespace DeprecationTool
             }
             else
             {
+                // pluginSettings = new Settings();
                 LogInfo("Settings found and loaded");
             }
+
+            if (Service == null) solutionComboBox.Text = "No organization loaded.";
 
             FirstTimeSettingsPrompt();
 
             formState = new FormState();
-            ExecuteMethod(LoadData);
         }
 
         private void SettingsPrompt()
@@ -48,7 +50,7 @@ namespace DeprecationTool
 
             while (res == null || res.DeprecationPrefix == string.Empty)
                 res = DeprecationTool.SettingsPrompt.SettingsDialog("Your field prefix (not required)",
-                    "Your deprecation prefix",
+                    "Your deprecation prefix (required)",
                     "Deprecation settings",
                     pluginSettings);
 
@@ -60,7 +62,15 @@ namespace DeprecationTool
 
         private void FirstTimeSettingsPrompt()
         {
-            if (string.IsNullOrEmpty(pluginSettings.DeprecationPrefix)) SettingsPrompt();
+            if (string.IsNullOrEmpty(pluginSettings.DeprecationPrefix))
+            {
+                ShowInfoNotification("To read about what this tool is designed for, visit the readme!", 
+                    new Uri("https://github.com/delegateas/DeprecationTool/blob/master/README.md"));
+
+                pluginSettings.FieldPrefix = "";
+                pluginSettings.DeprecationPrefix = "zz_";
+            }
+
         }
 
         private void tsbClose_Click(object sender, EventArgs e)
@@ -71,7 +81,7 @@ namespace DeprecationTool
         private void reload_click(object sender, EventArgs e)
         {
             ClearSolutionComboBox();
-            ClearAttributeList();
+            ClearFieldList();
             ClearEntityList();
             ExecuteMethod(LoadData);
         }
@@ -143,6 +153,9 @@ namespace DeprecationTool
 
                 solutionComboBox.Items.Add(new Deprecate.DisplayValue(entityCountText, logicalName));
             }
+
+            solutionComboBox.Text = "Select solution here.";
+
         }
 
         private void PopulateEntitiesListView(string solLogicalName)
@@ -152,6 +165,18 @@ namespace DeprecationTool
 
             foreach (var item in res.Keys)
                 entityList.Items.Add(new ListViewItem(new[] {item}));
+        }
+
+        private void PopulateFieldListView(Deprecate.MetaData[] fields)
+        {
+            ClearFieldList();
+            FieldButtonEnabled(true);
+
+            foreach (var field in fields)
+            {
+                var state = (CheckState)field.deprecationState;
+                entityFieldList.Items.Add(field, state);
+            }
         }
 
         private void ClearSolutionComboBox()
@@ -166,9 +191,17 @@ namespace DeprecationTool
             entityList.Items.Clear();
         }
 
-        private void ClearAttributeList()
+        private void ClearFieldList()
         {
+            FieldButtonEnabled(false);
             entityFieldList.Items.Clear();
+        }
+
+        private void FieldButtonEnabled(bool isOn)
+        {
+            resetButton.Enabled = isOn;
+            fixPartialButton.Enabled = isOn;
+            applyButton.Enabled = isOn;
         }
 
         /// <summary>
@@ -191,17 +224,6 @@ namespace DeprecationTool
             base.UpdateConnection(newService, detail, actionName, parameter);
 
             if (newService != null) LoadData();
-        }
-
-        private void RenderAttributeView(Deprecate.MetaData[] fields)
-        {
-            ClearAttributeList();
-
-            foreach (var field in fields)
-            {
-                var state = (CheckState) field.deprecationState;
-                entityFieldList.Items.Add(field, state);
-            }
         }
 
         private bool DiscardChangesMessage()
@@ -232,7 +254,7 @@ namespace DeprecationTool
             formState.SelectedSolution = currentlySelected.Value;
             var logicalName = currentlySelected.Value;
             PopulateEntitiesListView(logicalName);
-            ClearAttributeList();
+            ClearFieldList();
         }
 
         private void entityListView_SelectedIndexChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -254,7 +276,7 @@ namespace DeprecationTool
             formState.CurrentEntityListItem = currentlySelected;
 
             var selectedEntityFields = GetEntityFields(currentlySelected);
-            RenderAttributeView(selectedEntityFields);
+            PopulateFieldListView(selectedEntityFields);
         }
 
         private Deprecate.MetaData[] GetEntityFields(ListViewItem currentlySelected)
@@ -319,16 +341,26 @@ namespace DeprecationTool
             return attrWithCheckedState;
         }
 
-/*
-        private void CheckBoxStyle(object sender, PaintEventArgs e)
+        private void tsInfo_Click(object sender, EventArgs e)
         {
-            CheckBox s = (CheckBox)sender;
-            if (s.CheckState == CheckState.Indeterminate)
+            if (MessageBox.Show(
+                    "In depth explanation can be found in our readme.\nDo you wish to open the webpage?", "Visit readme?", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk
+                ) == DialogResult.Yes)
             {
-                e.Graphics.FillRectangle(Brushes.White, new Rectangle(new Point(4, 4), new Size(6, 8)));
-                e.Graphics.DrawString("-", s.Font, Brushes.Black, new Point(1, 1));
+                System.Diagnostics.Process.Start("https://github.com/delegateas/DeprecationTool/blob/master/README.md");
             }
         }
-*/
+
+        /*
+                private void CheckBoxStyle(object sender, PaintEventArgs e)
+                {
+                    CheckBox s = (CheckBox)sender;
+                    if (s.CheckState == CheckState.Indeterminate)
+                    {
+                        e.Graphics.FillRectangle(Brushes.White, new Rectangle(new Point(4, 4), new Size(6, 8)));
+                        e.Graphics.DrawString("-", s.Font, Brushes.Black, new Point(1, 1));
+                    }
+                }
+        */
     }
 }
