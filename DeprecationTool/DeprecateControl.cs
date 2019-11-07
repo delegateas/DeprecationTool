@@ -33,7 +33,6 @@ namespace DeprecationTool
             }
             else
             {
-                // pluginSettings = new Settings();
                 LogInfo("Settings found and loaded");
             }
 

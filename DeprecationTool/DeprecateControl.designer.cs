@@ -206,8 +206,8 @@ namespace DeprecationTool
             // 
             this.tsInfo.Image = ((System.Drawing.Image)(resources.GetObject("tsInfo.Image")));
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(63, 28);
-            this.tsInfo.Text = "Info";
+            this.tsInfo.Size = new System.Drawing.Size(69, 28);
+            this.tsInfo.Text = "Help";
             this.tsInfo.Click += new System.EventHandler(this.tsInfo_Click);
             // 
             // DeprecateControl
