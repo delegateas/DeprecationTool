@@ -11,6 +11,8 @@ open Microsoft.Xrm.Sdk.Query
 open Microsoft.Xrm.Sdk.Metadata
 
 module Deprecate =
+  open System.Globalization
+
   type DeprecationState = Favored = 0 // same as not deprecated
                         | Deprecated = 1
                         | Partial = 2 // Partial deprecation means only the name has been prefixed as deprecated.
@@ -62,8 +64,12 @@ module Deprecate =
   let deprecationStampPattern = 
     @"\n(\(Deprecated:)\s(?<date>\d{2,}\/\d{2,}\/\d{4,}\s\d{2,}.\d{2,}.\d{2,})(,\ssearch:\s(?<searchable>1|0))?(\))"
 
-  let startsWithPrefix (attrMetaData: AttributeMetadata) prefix =
-    (labelToString attrMetaData.DisplayName).StartsWith(prefix)
+
+  let startsWithPrefix (text: string) prefix =
+    text.StartsWith(prefix, true, CultureInfo.InvariantCulture)
+
+  let attrStartsWithPrefix (attrMetaData: AttributeMetadata) prefix =
+    startsWithPrefix (labelToString attrMetaData.DisplayName) prefix
 
   let isSearchable (attrMetaData: AttributeMetadata) =
     attrMetaData.IsValidForAdvancedFind.Value |> not
@@ -81,10 +87,10 @@ module Deprecate =
     | _ -> false
 
   let isDeprecated (attr: AttributeMetadata) prefix =
-    (isSearchable attr) && (hasDeprecationDescription attr) && (startsWithPrefix attr prefix)
+    (isSearchable attr) && (hasDeprecationDescription attr) && (attrStartsWithPrefix attr prefix)
   
   let isPartiallyDeprecated (attr: AttributeMetadata) prefix =
-    (startsWithPrefix attr prefix)
+    (attrStartsWithPrefix attr prefix)
 
   let getDeprecationState (attr: AttributeMetadata) prefix =
     match attr with
@@ -126,7 +132,7 @@ module Deprecate =
       resp.EntityMetadata.Attributes 
       |> Array.filter (fun x -> filterValidAttribute x)
       |> Array.filter (fun x -> x.AttributeOf = null)
-      |> Array.filter (fun x -> x.LogicalName.StartsWith(filterPrefix))
+      |> Array.filter (fun x -> startsWithPrefix x.LogicalName filterPrefix)
       |> Array.map (curriedDeprecationType)
 
 
@@ -194,7 +200,7 @@ module Deprecate =
         ["solutionid"; "uniquename"; "ismanaged"] Map.empty
     |> Seq.filter(fun x -> ignoreSet.Contains(x.Attributes.["uniquename"].ToString()) |> not)
     |> Seq.filter(fun x -> (x.Attributes.["ismanaged"] :?> bool) |> not)
-    |> Seq.filter(fun x -> x.Attributes.["uniquename"].ToString().StartsWith(prefix))
+    |> Seq.filter(fun x -> startsWithPrefix (x.Attributes.["uniquename"].ToString()) prefix)
     |> Seq.map(fun x -> 
       { SolutionData.id = (x.Attributes.["solutionid"] :?> Guid) 
         uniqueName = x.Attributes.["uniquename"].ToString() 
@@ -226,13 +232,13 @@ module Deprecate =
     cleanDescription + deprecationDate
 
   let safeAddDeprecationPrefix (displayName: string) (prefix: string) =
-    if displayName.StartsWith prefix 
+    if startsWithPrefix displayName prefix 
     then displayName
     else (prefix + displayName)
 
   let safeRemoveDeprecationPrefix (displayName: string) (prefix: string) =
     let prefixLength = prefix.Length
-    if displayName.StartsWith prefix 
+    if startsWithPrefix displayName prefix
     then displayName.[prefixLength..]
     else displayName
 
