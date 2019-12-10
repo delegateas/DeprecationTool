@@ -6,6 +6,7 @@ using DeprecationTool.Models;
 using Lib;
 using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Workflow.Activities;
 using XrmToolBox.Extensibility;
 
 namespace DeprecationTool
@@ -240,7 +241,7 @@ namespace DeprecationTool
             var currentIndex = solutionList.SelectedIndex;
 
             if (currentlySelected == null) return;
-            if (currentIndex == formState.CurrentSolutionIdx) return;
+            //if (currentIndex == formState.CurrentSolutionIdx) return;
 
             if (Deprecate.hasPendingChanges(FieldsWithCheckedState()))
                 if (!DiscardChangesMessage() && formState.CurrentSolutionIdx != -1)
