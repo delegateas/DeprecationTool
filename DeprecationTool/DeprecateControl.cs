@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -13,6 +14,7 @@ namespace DeprecationTool
 {
     public partial class DeprecateControl : PluginControlBase
     {
+        private ListViewItemComparer entityListViewComparer;
         private FormState formState;
         private Settings pluginSettings;
         private Deprecate.SolutionData[] solutions;
@@ -21,6 +23,9 @@ namespace DeprecationTool
         public DeprecateControl()
         {
             InitializeComponent();
+
+            this.entityListViewComparer = new ListViewItemComparer();
+            this.entityFieldList.ListViewItemSorter = this.entityListViewComparer;
         }
 
         private void DeprecateControl_Load(object sender, EventArgs e)
@@ -174,9 +179,19 @@ namespace DeprecationTool
 
             foreach (var field in fields)
             {
-                var state = (CheckState)field.deprecationState;
-                entityFieldList.Items.Add(field, state);
+                var itemToAdd = new ListViewItem
+                {
+                    Text = field.ToString(),
+                    Tag = field,
+                    ImageIndex = (int) field.deprecationState
+                };
+
+                entityFieldList.Items.Add(itemToAdd);
             }
+
+            foreach (ColumnHeader column in entityFieldList.Columns)
+                column.Width = -1;
+
         }
 
         private void ClearSolutionComboBox()
@@ -291,9 +306,8 @@ namespace DeprecationTool
         {
             for (var i = 0; i < entityFieldList.Items.Count; i++)
             {
-                var field = entityFieldList.Items.Cast<Deprecate.MetaData>().ElementAt(i);
-
-                entityFieldList.SetItemCheckState(i, (CheckState) field.deprecationState);
+                var field = entityFieldList.Items[i];
+                field.ImageIndex = (int) ((Deprecate.MetaData)field.Tag).deprecationState;
             }
         }
 
@@ -301,9 +315,10 @@ namespace DeprecationTool
         {
             for (var i = 0; i < entityFieldList.Items.Count; i++)
             {
-                var field = entityFieldList.Items.Cast<Deprecate.MetaData>().ElementAt(i);
-                if (field.deprecationState == Deprecate.DeprecationState.Partial)
-                    entityFieldList.SetItemCheckState(i, CheckState.Checked);
+                var field = entityFieldList.Items.Cast<ListViewItem>().ElementAt(i);
+                var metadata = ((Deprecate.MetaData)field.Tag);
+                if (metadata.deprecationState == Deprecate.DeprecationState.Partial)
+                    field.ImageIndex = (int)CheckState.Checked;
             }
         }
 
@@ -330,12 +345,11 @@ namespace DeprecationTool
         private Deprecate.MetaDataWithCheck[] FieldsWithCheckedState()
         {
             var fieldList = entityFieldList;
-            var attrWithCheckedState = entityFieldList.Items
-                .Cast<Deprecate.MetaData>()
-                .Select((metaData, i) =>
+            var attrWithCheckedState = entityFieldList.Items.Cast<ListViewItem>()
+                .Select((item, i) =>
                     new Deprecate.MetaDataWithCheck(
-                        metaData,
-                        (Deprecate.DeprecationState) fieldList.GetItemCheckState(i))
+                        (Deprecate.MetaData) item.Tag,
+                        (Deprecate.DeprecationState) item.ImageIndex)
                 )
                 .ToArray();
             return attrWithCheckedState;
@@ -351,16 +365,50 @@ namespace DeprecationTool
             }
         }
 
-        /*
-                private void CheckBoxStyle(object sender, PaintEventArgs e)
+        private void fieldListColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            ListView myListView = (ListView)sender;
+            entityListViewComparer.toggleOrder();
+            myListView.Sort();
+        }
+
+        private void fieldListOnkeyboardPress(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData == Keys.Space)
+            {
+                var items = entityFieldList.SelectedItems.Cast<ListViewItem>();
+                for (var i = 0; i < items.Count(); i++)
                 {
-                    CheckBox s = (CheckBox)sender;
-                    if (s.CheckState == CheckState.Indeterminate)
-                    {
-                        e.Graphics.FillRectangle(Brushes.White, new Rectangle(new Point(4, 4), new Size(6, 8)));
-                        e.Graphics.DrawString("-", s.Font, Brushes.Black, new Point(1, 1));
-                    }
+                    var item = items.ElementAt(i);
+                    // Take current index with modulo of 2, subtract that with 1.
+                    // 1 turns into 0
+                    // 2 turns into 1
+                    // 3 turns into 0
+                    // Repeated modulo because % on negative numbers are negative otherwise.
+                    item.ImageIndex = 1 - ((item.ImageIndex % 2 + 2) % 2);
                 }
-        */
+
+                e.Handled = e.SuppressKeyPress = true;
+            }
+        }
+
+    }
+
+    class ListViewItemComparer : IComparer
+    {
+        // Start with false so we sync up with the beginning of the winform column state
+        public bool ascending { get; set; } = true;
+        public int col { get; set; } = 0;
+
+        public ListViewItemComparer() { }
+
+        public void toggleOrder() => ascending = !ascending;
+
+        public int Compare(object x, object y)
+        {
+            return ascending
+                ? string.Compare(((ListViewItem)x).SubItems[col].Text, ((ListViewItem)y).SubItems[col].Text)
+                : string.Compare(((ListViewItem)y).SubItems[col].Text, ((ListViewItem)x).SubItems[col].Text);
+        }
     }
 }
