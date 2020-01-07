@@ -137,6 +137,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomControls\CheckBoxListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="DeprecatePlugin.cs" />
     <Compile Include="DeprecateControl.cs">
       <SubType>UserControl</SubType>
@@ -194,7 +197,10 @@
       IF NOT EXIST Plugins mkdir Plugins
       xcopy "$(TargetDir)$(TargetFileName)" "$(TargetDir)Plugins\" /Y
       xcopy "$(TargetDir)$(TargetName).pdb" "$(TargetDir)Plugins\" /Y
-      )</PostBuildEvent>
+      )
+xcopy "C:\Users\asa\source\repos\Testxrmtoolbox\Testxrmtoolbox\bin\Debug\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" "$(TargetDir)" /Y
+xcopy "C:\Users\asa\source\repos\Testxrmtoolbox\Testxrmtoolbox\bin\Debug\Microsoft.IdentityModel.Clients.ActiveDirectory.pdb" "$(TargetDir)" /Y
+xcopy "C:\Users\asa\source\repos\Testxrmtoolbox\Testxrmtoolbox\bin\Debug\Microsoft.IdentityModel.Clients.ActiveDirectory.xml" "$(TargetDir)" /Y</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

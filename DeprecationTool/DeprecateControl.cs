@@ -179,12 +179,10 @@ namespace DeprecationTool
 
             foreach (var field in fields)
             {
-                //var state = (CheckState)field.deprecationState;
                 var itemToAdd = new ListViewItem
                 {
                     Text = field.ToString(),
                     Tag = field,
-                    // Checked = field.deprecationState == Deprecate.DeprecationState.Deprecated,
                     ImageIndex = (int) field.deprecationState
                 };
 
@@ -193,7 +191,7 @@ namespace DeprecationTool
 
             foreach (ColumnHeader column in entityFieldList.Columns)
                 column.Width = -1;
-            
+
         }
 
         private void ClearSolutionComboBox()
@@ -321,7 +319,6 @@ namespace DeprecationTool
                 var metadata = ((Deprecate.MetaData)field.Tag);
                 if (metadata.deprecationState == Deprecate.DeprecationState.Partial)
                     field.ImageIndex = (int)CheckState.Checked;
-                    //entityFieldList.SetItemCheckState(i, CheckState.Checked);
             }
         }
 
@@ -353,7 +350,6 @@ namespace DeprecationTool
                     new Deprecate.MetaDataWithCheck(
                         (Deprecate.MetaData) item.Tag,
                         (Deprecate.DeprecationState) item.ImageIndex)
-                        //Deprecate.DeprecationState.Partial)//(Deprecate.DeprecationState) fieldList.GetItemCheckState(i))
                 )
                 .ToArray();
             return attrWithCheckedState;
@@ -401,7 +397,7 @@ namespace DeprecationTool
     class ListViewItemComparer : IComparer
     {
         // Start with false so we sync up with the beginning of the winform column state
-        public bool ascending { get; set; } = false;
+        public bool ascending { get; set; } = true;
         public int col { get; set; } = 0;
 
         public ListViewItemComparer() { }
