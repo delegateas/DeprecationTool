@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lib;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -16,10 +17,6 @@ namespace DeprecationTool.CustomControls
             Indeterminate = 2
         }
 
-        const string UNCHECKED = "unchecked";
-        const string CHECKED = "checked";
-        const string INDETERMINATE = "indeterminate";
-
         ImageList CheckStates = new ImageList();
 
         public CheckBoxListView()
@@ -34,9 +31,9 @@ namespace DeprecationTool.CustomControls
             Bitmap checkedstate = new Bitmap(16, 16);
             CheckBoxRenderer.DrawCheckBox(Graphics.FromImage(checkedstate), new Point(0, 3), System.Windows.Forms.VisualStyles.CheckBoxState.CheckedNormal);
 
-            CheckStates.Images.Add(UNCHECKED, uncheckedstate);
-            CheckStates.Images.Add(CHECKED, checkedstate);
-            CheckStates.Images.Add(INDETERMINATE, intermediatestate);
+            CheckStates.Images.Add(Deprecate.UNCHECKED, uncheckedstate);
+            CheckStates.Images.Add(Deprecate.CHECKED, checkedstate);
+            CheckStates.Images.Add(Deprecate.INDETERMINATE, intermediatestate);
 
             SmallImageList = CheckStates;
         }
@@ -49,9 +46,9 @@ namespace DeprecationTool.CustomControls
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
-            SelectedItems[0].ImageKey = SelectedItems[0].ImageKey == CHECKED
-                ? UNCHECKED
-                : CHECKED;
+            SelectedItems[0].ImageKey = SelectedItems[0].ImageKey == Deprecate.CHECKED
+                ? Deprecate.UNCHECKED
+                : Deprecate.CHECKED;
         }
     }
 

@@ -20,7 +20,8 @@
     <releaseNotes>
       Unreleased - 07/01/2020
       * Fields are in a sortable listview
-      * Fixed issues with solution dropdown after reload all 
+      * Fixed issues with solution dropdown after reload all
+      * Added "Display Name" to field list, and fixed bug with toggling states
       1.0.7 - 07/11/2019
       * User guide explaining the tool
       * No pop ups when starting, just sane defaults

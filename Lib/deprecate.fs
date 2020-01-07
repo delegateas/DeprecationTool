@@ -12,12 +12,32 @@ open Microsoft.Xrm.Sdk.Metadata
 
 module Deprecate =
   open System.Globalization
+  
+  [<Literal>]
+  let UNCHECKED = "unchecked";
+  [<Literal>]
+  let CHECKED = "checked";
+  [<Literal>]
+  let INDETERMINATE = "indeterminate";
 
   type DeprecationState = Favored = 0 // same as not deprecated
                         | Deprecated = 1
                         | Partial = 2 // Partial deprecation means only the name has been prefixed as deprecated.
 
+  let DeprecationStateToCheckBoxLiteral = function
+    | DeprecationState.Favored -> UNCHECKED
+    | DeprecationState.Deprecated -> CHECKED
+    | DeprecationState.Partial -> INDETERMINATE
+
   type LogicalName = string
+
+  let labelToString (label: Label) =
+    label.UserLocalizedLabel.Label.ToString()
+
+  type FieldNames = {
+    logicalName: string
+    displayName: string
+  }
 
   type MetaData = {
       entityLName: LogicalName;
@@ -27,6 +47,9 @@ module Deprecate =
   } with 
     override this.ToString() =
       this.attribute.SchemaName
+    member this.ColumnNames() =
+      { logicalName = this.attribute.SchemaName
+        displayName = labelToString this.attribute.DisplayName }
 
   type SolutionData = {
     id: Guid
@@ -57,9 +80,6 @@ module Deprecate =
   type Action = Deprecate of Data: MetaData
               | Favor of Data : MetaData
 
-
-  let labelToString (label: Label) =
-    label.UserLocalizedLabel.Label.ToString()
 
   let deprecationStampPattern = 
     @"\n(\(Deprecated:)\s(?<date>\d{2,}\/\d{2,}\/\d{4,}\s\d{2,}.\d{2,}.\d{2,})(,\ssearch:\s(?<searchable>1|0))?(\))"
