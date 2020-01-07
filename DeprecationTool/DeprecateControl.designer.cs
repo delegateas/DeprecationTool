@@ -43,7 +43,8 @@ namespace DeprecationTool
             this.entityList = new System.Windows.Forms.ListView();
             this.EntityHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.entityFieldList = new CustomControls.CheckBoxListView();
-            this.EntityAttributeHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.EntityFieldLogicalName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.EntityFieldDisplayName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.resetButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.fixPartialButton = new System.Windows.Forms.Button();
@@ -142,7 +143,7 @@ namespace DeprecationTool
             // 
             //this.entityFieldList.CheckBoxes = true;
             this.entityFieldList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.EntityAttributeHeader});
+            this.EntityFieldLogicalName, this.EntityFieldDisplayName});
             this.entityFieldList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.entityFieldList.HideSelection = false;
             this.entityFieldList.Location = new System.Drawing.Point(0, 0);
@@ -153,11 +154,15 @@ namespace DeprecationTool
             this.entityFieldList.View = System.Windows.Forms.View.Details;
             this.entityFieldList.ColumnClick += fieldListColumnClick;
             this.entityFieldList.KeyDown += fieldListOnkeyboardPress;
+            this.entityFieldList.View = View.Details;
+            this.entityFieldList.FullRowSelect = true;
             // 
-            // Name
+            // Columns
             // 
-            this.EntityAttributeHeader.Text = "Name";
-            this.EntityAttributeHeader.Width = 80;
+            this.EntityFieldLogicalName.Text = "Logical name";
+            this.EntityFieldLogicalName.Width = 80;
+            this.EntityFieldDisplayName.Text = "Display name";
+            this.EntityFieldDisplayName.Width = 80;
             // 
             // resetButton
             // 
@@ -250,7 +255,8 @@ namespace DeprecationTool
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.ToolStripComboBox solutionComboBox;
         private ColumnHeader EntityHeader;
-        private ColumnHeader EntityAttributeHeader;
+        private ColumnHeader EntityFieldLogicalName;
+        private ColumnHeader EntityFieldDisplayName;
         private ToolStripButton tsSettings;
         private Button fixPartialButton;
         private SplitContainer splitContainer1;

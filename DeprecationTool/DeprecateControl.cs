@@ -179,12 +179,16 @@ namespace DeprecationTool
 
             foreach (var field in fields)
             {
+                var names = field.ColumnNames();
                 var itemToAdd = new ListViewItem
                 {
-                    Text = field.ToString(),
+                    Text = names.logicalName,
                     Tag = field,
-                    ImageIndex = (int) field.deprecationState
+                    ImageIndex = (int) field.deprecationState,
+                    ImageKey = Deprecate.DeprecationStateToCheckBoxLiteral(field.deprecationState)
                 };
+                // First column is given by Text field, subsequent ones are given by subitems
+                itemToAdd.SubItems.AddRange(new[] { names.displayName });
 
                 entityFieldList.Items.Add(itemToAdd);
             }
@@ -368,7 +372,7 @@ namespace DeprecationTool
         private void fieldListColumnClick(object sender, ColumnClickEventArgs e)
         {
             ListView myListView = (ListView)sender;
-            entityListViewComparer.toggleOrder();
+            entityListViewComparer.toggleOrder(e.Column);
             myListView.Sort();
         }
 
@@ -397,16 +401,22 @@ namespace DeprecationTool
     class ListViewItemComparer : IComparer
     {
         // Start with false so we sync up with the beginning of the winform column state
-        public bool ascending { get; set; } = true;
+        public bool[] ascending { get; set; } = {true, true};
         public int col { get; set; } = 0;
 
         public ListViewItemComparer() { }
 
-        public void toggleOrder() => ascending = !ascending;
+        public void toggleOrder(int givenCol) {
+            if(ascending.Length > givenCol)
+            {
+                col = givenCol;
+                ascending[col] = !ascending[col];
+            }
+        }
 
         public int Compare(object x, object y)
         {
-            return ascending
+            return ascending[col]
                 ? string.Compare(((ListViewItem)x).SubItems[col].Text, ((ListViewItem)y).SubItems[col].Text)
                 : string.Compare(((ListViewItem)y).SubItems[col].Text, ((ListViewItem)x).SubItems[col].Text);
         }
