@@ -28,7 +28,14 @@ module Deprecate =
     | DeprecationState.Favored -> UNCHECKED
     | DeprecationState.Deprecated -> CHECKED
     | DeprecationState.Partial -> INDETERMINATE
-
+    | _ -> failwith "unexpected state"
+    
+  let CheckBoxLiteralToDeprecationState = function
+    | x when x = UNCHECKED -> DeprecationState.Favored
+    | x when x = CHECKED -> DeprecationState.Deprecated
+    | x when x = INDETERMINATE -> DeprecationState.Partial
+    | _ -> failwith "unexpected literal"
+  
   type LogicalName = string
 
   let labelToString (label: Label) =
@@ -70,20 +77,15 @@ module Deprecate =
     deprecationState: DeprecationState
   }
   
-//  type ResDict = IDictionary<String, IDictionary<string, MetaData[]>>
-
   type EntityMetaDataMap = Map<LogicalName, MetaData[]>
 
   type SolutionMetaDataMap = Map<LogicalName, EntityMetaDataMap>
 
-
   type Action = Deprecate of Data: MetaData
               | Favor of Data : MetaData
 
-
   let deprecationStampPattern = 
     @"\n(\(Deprecated:)\s(?<date>\d{2,}\/\d{2,}\/\d{4,}\s\d{2,}.\d{2,}.\d{2,})(,\ssearch:\s(?<searchable>1|0))?(\))"
-
 
   let startsWithPrefix (text: string) prefix =
     text.StartsWith(prefix, true, CultureInfo.InvariantCulture)
@@ -117,7 +119,6 @@ module Deprecate =
     | x when (isDeprecated x prefix) -> DeprecationState.Deprecated
     | x when (isPartiallyDeprecated x prefix) -> DeprecationState.Partial
     | _ -> DeprecationState.Favored
-
 
   let getResponse<'T when 'T :> OrganizationResponse> (proxy:IOrganizationService) request =
     (proxy.Execute(request)) :?> 'T
@@ -158,7 +159,6 @@ module Deprecate =
 
     (resp.EntityMetadata.LogicalName, filteredMetaData)
 
-
   let internal retrieveMultiple proxy logicalName (query:QueryExpression) = 
     query.PageInfo <- PagingInfo()
 
@@ -175,7 +175,6 @@ module Deprecate =
         | false -> ()
       }
     retrieveMultiple' proxy query 1 null
-
 
   let internal getEntitiesFilter 
     proxy (logicalName:string)
@@ -262,7 +261,6 @@ module Deprecate =
     then displayName.[prefixLength..]
     else displayName
 
-
   let executeRequests (proxy: IOrganizationService) (reqs: OrganizationRequest[]) =
     let req = ExecuteMultipleRequest()
     req.Requests <- OrganizationRequestCollection()
@@ -279,7 +277,6 @@ module Deprecate =
       |> Array.iter (fun r -> printfn "ERROR: %i, %A" r.RequestIndex r.Fault.Message)
 
     resp
-
 
   (* An attribute is deprecated when 
       1. The display name has been prepended with a deprecation prefix, such as "zz_"
