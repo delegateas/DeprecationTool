@@ -22,8 +22,8 @@ namespace DeprecationTool.CustomControls
         public CheckBoxListView()
         {
            
-            Bitmap intermediatestate = new Bitmap(16, 16);
-            CheckBoxRenderer.DrawCheckBox(Graphics.FromImage(intermediatestate), new Point(0, 3), System.Windows.Forms.VisualStyles.CheckBoxState.MixedNormal);
+            Bitmap indeterminate = new Bitmap(16, 16);
+            CheckBoxRenderer.DrawCheckBox(Graphics.FromImage(indeterminate), new Point(0, 3), System.Windows.Forms.VisualStyles.CheckBoxState.MixedNormal);
 
             Bitmap uncheckedstate = new Bitmap(16, 16);
             CheckBoxRenderer.DrawCheckBox(Graphics.FromImage(uncheckedstate), new Point(0, 3), System.Windows.Forms.VisualStyles.CheckBoxState.UncheckedNormal);
@@ -33,7 +33,7 @@ namespace DeprecationTool.CustomControls
 
             CheckStates.Images.Add(Deprecate.UNCHECKED, uncheckedstate);
             CheckStates.Images.Add(Deprecate.CHECKED, checkedstate);
-            CheckStates.Images.Add(Deprecate.INDETERMINATE, intermediatestate);
+            CheckStates.Images.Add(Deprecate.INDETERMINATE, indeterminate);
 
             SmallImageList = CheckStates;
         }
