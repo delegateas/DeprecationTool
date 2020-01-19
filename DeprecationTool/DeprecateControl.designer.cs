@@ -45,6 +45,7 @@ namespace DeprecationTool
             this.entityFieldList = new CustomControls.CheckBoxListView();
             this.EntityFieldLogicalName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.EntityFieldDisplayName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.fieldListContextMenu = new ContextMenuStrip();
             this.resetButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.fixPartialButton = new System.Windows.Forms.Button();
@@ -154,6 +155,7 @@ namespace DeprecationTool
             this.entityFieldList.View = System.Windows.Forms.View.Details;
             this.entityFieldList.ColumnClick += fieldListColumnClick;
             this.entityFieldList.KeyDown += fieldListOnkeyboardPress;
+            this.entityFieldList.MouseClick += fieldListMouseClick;
             this.entityFieldList.View = View.Details;
             this.entityFieldList.FullRowSelect = true;
             // 
@@ -163,6 +165,8 @@ namespace DeprecationTool
             this.EntityFieldLogicalName.Width = 80;
             this.EntityFieldDisplayName.Text = "Display name";
             this.EntityFieldDisplayName.Width = 80;
+            // Menutoolstirp
+            fieldListContextMenu.Name = "";
             // 
             // resetButton
             // 
@@ -254,6 +258,7 @@ namespace DeprecationTool
         private System.Windows.Forms.Button resetButton;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.ToolStripComboBox solutionComboBox;
+        private ContextMenuStrip fieldListContextMenu;
         private ColumnHeader EntityHeader;
         private ColumnHeader EntityFieldLogicalName;
         private ColumnHeader EntityFieldDisplayName;

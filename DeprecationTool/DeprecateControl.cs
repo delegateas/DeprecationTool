@@ -371,9 +371,21 @@ namespace DeprecationTool
 
         private void fieldListColumnClick(object sender, ColumnClickEventArgs e)
         {
-            ListView myListView = (ListView)sender;
+            ListView theListView = (ListView)sender;
             entityListViewComparer.toggleOrder(e.Column);
-            myListView.Sort();
+            theListView.Sort();
+        }
+
+        private void fieldListMouseClick(object sender, MouseEventArgs e)
+        {
+            ListView theListView = (ListView)sender;
+            if (e.Button == MouseButtons.Right)
+            {
+                if (theListView.FocusedItem != null && theListView.FocusedItem.Bounds.Contains(e.Location))
+                {
+                    fieldListContextMenu.Show(Cursor.Position);
+                }
+            }
         }
 
         private void fieldListOnkeyboardPress(object sender, KeyEventArgs e)
