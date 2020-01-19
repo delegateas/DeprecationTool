@@ -385,6 +385,12 @@ namespace DeprecationTool
                 {
                     fieldListContextMenu.Show(Cursor.Position);
                 }
+            }else if (e.Button == MouseButtons.Left)
+            {
+                var element = theListView.FocusedItem;
+                element.ImageKey = element.ImageKey == Deprecate.CHECKED
+                    ? Deprecate.UNCHECKED
+                    : Deprecate.CHECKED;
             }
         }
 
@@ -408,6 +414,20 @@ namespace DeprecationTool
             }
         }
 
+        private void showDependencyMenuItem_Click(object sender, EventArgs e)
+        {
+            var item = entityFieldList.FocusedItem;
+            if (item != null)
+            {
+                var meta = (Deprecate.MetaData)item.Tag;
+                var res = Deprecate.getDependencyCountForEntity(Service, meta);
+                string message = $"Entity {meta.entityLName} has {res} {(res == 1 ? "dependency." : "dependencies." )}";
+                string caption = $"Dependency for {meta.entityLName}";
+                var result = MessageBox.Show(message, caption,
+                                             MessageBoxButtons.OK);
+
+            }
+        }
     }
 
     class ListViewItemComparer : IComparer

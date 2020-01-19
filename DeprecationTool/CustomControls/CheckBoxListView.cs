@@ -46,9 +46,10 @@ namespace DeprecationTool.CustomControls
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
-            SelectedItems[0].ImageKey = SelectedItems[0].ImageKey == Deprecate.CHECKED
-                ? Deprecate.UNCHECKED
-                : Deprecate.CHECKED;
+            //if (e.Button == MouseButtons.Left)
+               /* SelectedItems[0].ImageKey = SelectedItems[0].ImageKey == Deprecate.CHECKED
+                    ? Deprecate.UNCHECKED
+                    : Deprecate.CHECKED;*/
         }
     }
 

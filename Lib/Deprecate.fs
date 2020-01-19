@@ -326,7 +326,6 @@ module Deprecate =
     request.ObjectId <- attr.attribute.MetadataId.Value
 
     let response = getResponse<RetrieveDependenciesForDeleteResponse> proxy request
-
     response.EntityCollection.Entities.Count
 
   let pendingChanges (attrs: MetaDataWithCheck[]) =
