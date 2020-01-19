@@ -9,6 +9,7 @@ open Microsoft.Xrm.Sdk.Client
 open Microsoft.Xrm.Sdk.Messages
 open Microsoft.Xrm.Sdk.Query
 open Microsoft.Xrm.Sdk.Metadata
+open Microsoft.Crm.Sdk.Messages
 
 module Deprecate =
   open System.Globalization
@@ -318,6 +319,14 @@ module Deprecate =
     attr.DisplayName.UserLocalizedLabel <- LocalizedLabel(newDisplayName, attrMetadata.locale)
 
     attributeUpdateRequest attrMetadata
+
+  let getDependencyCountForEntity proxy (attr: MetaData) =
+    let request = RetrieveDependenciesForDeleteRequest()
+    request.ComponentType <- 2 //componenttype 2 = entity
+    request.ObjectId <- attr.attribute.MetadataId.Value
+
+    let response = getResponse<RetrieveDependenciesForDeleteResponse> proxy request
+    response.EntityCollection.Entities.Count
 
   let pendingChanges (attrs: MetaDataWithCheck[]) =
     attrs 

@@ -371,9 +371,27 @@ namespace DeprecationTool
 
         private void fieldListColumnClick(object sender, ColumnClickEventArgs e)
         {
-            ListView myListView = (ListView)sender;
+            ListView theListView = (ListView)sender;
             entityListViewComparer.toggleOrder(e.Column);
-            myListView.Sort();
+            theListView.Sort();
+        }
+
+        private void fieldListMouseClick(object sender, MouseEventArgs e)
+        {
+            ListView theListView = (ListView)sender;
+            if (e.Button == MouseButtons.Right)
+            {
+                if (theListView.FocusedItem != null && theListView.FocusedItem.Bounds.Contains(e.Location))
+                {
+                    fieldListContextMenu.Show(Cursor.Position);
+                }
+            }else if (e.Button == MouseButtons.Left)
+            {
+                var element = theListView.FocusedItem;
+                element.ImageKey = element.ImageKey == Deprecate.CHECKED
+                    ? Deprecate.UNCHECKED
+                    : Deprecate.CHECKED;
+            }
         }
 
         private void fieldListOnkeyboardPress(object sender, KeyEventArgs e)
@@ -396,6 +414,20 @@ namespace DeprecationTool
             }
         }
 
+        private void showDependencyMenuItem_Click(object sender, EventArgs e)
+        {
+            var item = entityFieldList.FocusedItem;
+            if (item != null)
+            {
+                var meta = (Deprecate.MetaData)item.Tag;
+                var res = Deprecate.getDependencyCountForEntity(Service, meta);
+                string message = $"Entity {meta.entityLName} has {res} {(res == 1 ? "dependency." : "dependencies." )}";
+                string caption = $"Dependency for {meta.entityLName}";
+                var result = MessageBox.Show(message, caption,
+                                             MessageBoxButtons.OK);
+
+            }
+        }
     }
 
     class ListViewItemComparer : IComparer

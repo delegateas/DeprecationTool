@@ -32,6 +32,7 @@ namespace DeprecationTool
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DeprecateControl));
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.solutionComboBox = new System.Windows.Forms.ToolStripComboBox();
@@ -42,14 +43,17 @@ namespace DeprecationTool
             this.tsClose = new System.Windows.Forms.ToolStripButton();
             this.entityList = new System.Windows.Forms.ListView();
             this.EntityHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.entityFieldList = new CustomControls.CheckBoxListView();
+            this.entityFieldList = new DeprecationTool.CustomControls.CheckBoxListView();
             this.EntityFieldLogicalName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.EntityFieldDisplayName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.fieldListContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.showDependencyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.fixPartialButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.toolStripMenu.SuspendLayout();
+            this.fieldListContextMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -134,17 +138,18 @@ namespace DeprecationTool
             this.entityList.View = System.Windows.Forms.View.Details;
             this.entityList.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.entityListView_SelectedIndexChanged);
             // 
-            // EntityHeaderName
+            // EntityHeader
             // 
             this.EntityHeader.Text = "Name";
             this.EntityHeader.Width = 150;
             // 
             // entityFieldList
             // 
-            //this.entityFieldList.CheckBoxes = true;
             this.entityFieldList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.EntityFieldLogicalName, this.EntityFieldDisplayName});
+            this.EntityFieldLogicalName,
+            this.EntityFieldDisplayName});
             this.entityFieldList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.entityFieldList.FullRowSelect = true;
             this.entityFieldList.HideSelection = false;
             this.entityFieldList.Location = new System.Drawing.Point(0, 0);
             this.entityFieldList.Name = "entityFieldList";
@@ -154,15 +159,34 @@ namespace DeprecationTool
             this.entityFieldList.View = System.Windows.Forms.View.Details;
             this.entityFieldList.ColumnClick += fieldListColumnClick;
             this.entityFieldList.KeyDown += fieldListOnkeyboardPress;
+            this.entityFieldList.MouseClick += fieldListMouseClick;
             this.entityFieldList.View = View.Details;
-            this.entityFieldList.FullRowSelect = true;
+
+
             // 
-            // Columns
+            // EntityFieldLogicalName
             // 
             this.EntityFieldLogicalName.Text = "Logical name";
             this.EntityFieldLogicalName.Width = 80;
+            // 
+            // EntityFieldDisplayName
+            // 
             this.EntityFieldDisplayName.Text = "Display name";
             this.EntityFieldDisplayName.Width = 80;
+            // 
+            // fieldListContextMenu
+            // 
+            this.fieldListContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showDependencyMenuItem});
+            this.fieldListContextMenu.Name = "fieldListContextMenu";
+            this.fieldListContextMenu.Size = new System.Drawing.Size(195, 48);
+            // 
+            // showDependencyMenuItem
+            // 
+            this.showDependencyMenuItem.Name = "showDependencyMenuItem";
+            this.showDependencyMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.showDependencyMenuItem.Text = "Get dependency count";
+            this.showDependencyMenuItem.Click += new System.EventHandler(this.showDependencyMenuItem_Click);
             // 
             // resetButton
             // 
@@ -171,7 +195,7 @@ namespace DeprecationTool
             this.resetButton.Enabled = false;
             this.resetButton.Location = new System.Drawing.Point(6, 7);
             this.resetButton.Name = "resetButton";
-            this.resetButton.Size = new System.Drawing.Size(48, 46);
+            this.resetButton.Size = new System.Drawing.Size(48, 47);
             this.resetButton.TabIndex = 7;
             this.resetButton.Text = "Reset";
             this.resetButton.UseVisualStyleBackColor = true;
@@ -184,7 +208,7 @@ namespace DeprecationTool
             this.applyButton.Enabled = false;
             this.applyButton.Location = new System.Drawing.Point(206, 7);
             this.applyButton.Name = "applyButton";
-            this.applyButton.Size = new System.Drawing.Size(58, 46);
+            this.applyButton.Size = new System.Drawing.Size(58, 47);
             this.applyButton.TabIndex = 8;
             this.applyButton.Text = "Apply";
             this.applyButton.UseVisualStyleBackColor = true;
@@ -196,7 +220,7 @@ namespace DeprecationTool
             this.fixPartialButton.Enabled = false;
             this.fixPartialButton.Location = new System.Drawing.Point(102, 7);
             this.fixPartialButton.Name = "fixPartialButton";
-            this.fixPartialButton.Size = new System.Drawing.Size(60, 46);
+            this.fixPartialButton.Size = new System.Drawing.Size(60, 47);
             this.fixPartialButton.TabIndex = 9;
             this.fixPartialButton.Text = "Fix Partial";
             this.fixPartialButton.UseVisualStyleBackColor = true;
@@ -231,10 +255,12 @@ namespace DeprecationTool
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.entityList);
             this.Controls.Add(this.toolStripMenu);
+            this.Name = "DeprecateControl";
             this.Size = new System.Drawing.Size(559, 300);
             this.Load += new System.EventHandler(this.DeprecateControl_Load);
             this.toolStripMenu.ResumeLayout(false);
             this.toolStripMenu.PerformLayout();
+            this.fieldListContextMenu.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -254,6 +280,7 @@ namespace DeprecationTool
         private System.Windows.Forms.Button resetButton;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.ToolStripComboBox solutionComboBox;
+        private ContextMenuStrip fieldListContextMenu;
         private ColumnHeader EntityHeader;
         private ColumnHeader EntityFieldLogicalName;
         private ColumnHeader EntityFieldDisplayName;
@@ -261,5 +288,6 @@ namespace DeprecationTool
         private Button fixPartialButton;
         private SplitContainer splitContainer1;
         private ToolStripButton tsInfo;
+        private ToolStripMenuItem showDependencyMenuItem;
     }
 }
