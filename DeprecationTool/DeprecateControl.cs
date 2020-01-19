@@ -353,7 +353,7 @@ namespace DeprecationTool
                 .Select((item, i) =>
                     new Deprecate.MetaDataWithCheck(
                         (Deprecate.MetaData) item.Tag,
-                        (Deprecate.DeprecationState) item.ImageIndex)
+                        Deprecate.CheckBoxLiteralToDeprecationState(item.ImageKey))
                 )
                 .ToArray();
             return attrWithCheckedState;
