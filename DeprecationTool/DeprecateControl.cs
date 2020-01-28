@@ -19,7 +19,7 @@ namespace DeprecationTool
         private FormState formState;
         private Settings pluginSettings;
         private Types.SolutionData[] solutions;
-        private IDictionary<string, IDictionary<string, Types.MetaData[]>> solutionsWithData;
+        private IDictionary<string, Dictionary<string, Types.EntityWithFields>> solutionsWithData;
 
         public DeprecateControl()
         {
@@ -87,7 +87,7 @@ namespace DeprecationTool
             CloseTool();
         }
 
-        private void reload_click(object sender, EventArgs e)
+        private void reload_all_click(object sender, EventArgs e)
         {
             ClearSolutionComboBox();
             ClearFieldList();
@@ -116,7 +116,7 @@ namespace DeprecationTool
                     if (args.Error != null)
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    if (!(args.Result is IDictionary<string, IDictionary<string, Types.MetaData[]>> result)) return;
+                    if (!(args.Result is IDictionary<string, Dictionary<string, Types.EntityWithFields>> result)) return;
 
                     solutionsWithData = result;
                     PopulateSolutionsComboBox();
@@ -142,6 +142,31 @@ namespace DeprecationTool
 
                     solutions = result;
                     WorkAsync(FetchEntities());
+                }
+            };
+        }
+
+        private WorkAsyncInfo FetchSingleEntityFields(string solutionName, string entityName, Guid id)
+        {
+            return new WorkAsyncInfo
+            {
+                Message = $"Fetching entities for {entityName}",
+                Work = (worker, args) =>
+                {
+                    args.Result = Requests.getEntityAttributesFromId(Service, id,
+                        pluginSettings.FieldPrefix,
+                        pluginSettings.DeprecationPrefix);
+                },
+                PostWorkCallBack = args =>
+                {
+                    if (args.Error != null)
+                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    if (!(args.Result is Tuple<string, Types.EntityWithFields> result)) return;
+                    if (!solutionsWithData.TryGetValue(solutionName, out var res)) return;
+                    res[entityName] = result.Item2;
+                    PopulateFieldListView(result.Item2);
+                    FieldButtonsEnabled(true);
                 }
             };
         }
@@ -176,8 +201,10 @@ namespace DeprecationTool
                 entityList.Items.Add(new ListViewItem(new[] {item}));
         }
 
-        private void PopulateFieldListView(Types.MetaData[] fields)
+        private void PopulateFieldListView(Types.EntityWithFields entWithFields)
         {
+            if (entWithFields == null) return;
+            var fields = entWithFields.fields;
             ClearFieldList();
             FieldButtonsEnabled(true);
 
@@ -222,7 +249,7 @@ namespace DeprecationTool
 
         private void FieldButtonsEnabled(bool isOn)
         {
-            resetButton.Enabled = isOn;
+            reloadButton.Enabled = isOn;
             fixPartialButton.Enabled = isOn;
             applyButton.Enabled = isOn;
         }
@@ -302,7 +329,7 @@ namespace DeprecationTool
             PopulateFieldListView(selectedEntityFields);
         }
 
-        private Types.MetaData[] GetEntityFields(ListViewItem currentlySelected)
+        private Types.EntityWithFields GetEntityFields(ListViewItem currentlySelected)
         {
             if (!solutionsWithData.TryGetValue(formState.SelectedSolution, out var selectedSolution)) return null;
             if (!selectedSolution.TryGetValue(currentlySelected.SubItems[0].Text, out var selectedEntityFields))
@@ -310,13 +337,22 @@ namespace DeprecationTool
             return selectedEntityFields;
         }
 
-        private void resetButton_Click(object sender, EventArgs e)
+        private void reloadButton_Click(object sender, EventArgs e)
         {
+            var solutionName = formState.SelectedSolution;
+            if (!solutionsWithData.TryGetValue(solutionName, out var selectedSolution)) return;
+            var entityName = formState.CurrentEntityListItem.SubItems[0].Text;
+            if (!selectedSolution.TryGetValue(entityName, out var selectedEntityFields))
+                return;
+            FieldButtonsEnabled(false);
+
+            WorkAsync(FetchSingleEntityFields(solutionName, entityName, selectedEntityFields.entityGuid));
+/*
             for (var i = 0; i < entityFieldList.Items.Count; i++)
             {
                 var field = entityFieldList.Items[i];
                 field.ImageKey = Functions.DeprecationStateToCheckBoxLiteral(((Types.MetaData)field.Tag).deprecationState);
-            }
+            }*/
         }
 
         private void fixPartialButton_Click(object sender, EventArgs e)
@@ -400,6 +436,7 @@ namespace DeprecationTool
         {
             ListView theListView = (ListView)sender;
             var item = theListView.FocusedItem;
+            if (item == null) return;
 
             if (e.Button == MouseButtons.Right)
             {
@@ -420,6 +457,8 @@ namespace DeprecationTool
             if (e.KeyData == Keys.Space)
             {
                 var items = entityFieldList.SelectedItems.Cast<ListViewItem>();
+                if (items == null) return;
+
                 for (var i = 0; i < items.Count(); i++)
                 {
                     var item = items.ElementAt(i);
@@ -443,11 +482,6 @@ namespace DeprecationTool
                                              MessageBoxButtons.OK);
 
             }
-        }
-
-        private void fieldReload_Click(object sender, EventArgs e)
-        {
-
         }
     }
 

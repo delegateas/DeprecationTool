@@ -32,16 +32,21 @@ module Types =
   }
 
   type MetaData = {
-      entityLName: LogicalName;
-      locale: int;
-      attribute: AttributeMetadata;
-      mutable deprecationState: DeprecationState;
+    entityLName: LogicalName;
+    locale: int;
+    attribute: AttributeMetadata;
+    mutable deprecationState: DeprecationState;
   } with 
     override this.ToString() =
       this.attribute.SchemaName
     member this.ColumnNames() =
       { logicalName = this.attribute.SchemaName
         displayName = labelToString this.attribute.DisplayName }
+
+  type EntityWithFields = {
+    entityGuid: Guid;
+    fields: MetaData[];
+  }
 
   type SolutionData = {
     id: Guid
