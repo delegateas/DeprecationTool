@@ -78,3 +78,10 @@ module Functions =
           attribute = attr
           deprecationState = (getDeprecationState attr prefix) 
       }
+
+  let filterValidAttribute (x: AttributeMetadata) =
+       x.Description <> null
+    && x.Description.UserLocalizedLabel <> null
+    && x.DisplayName<> null
+    && x.DisplayName.UserLocalizedLabel <> null
+    && x.IsValidForAdvancedFind <> null

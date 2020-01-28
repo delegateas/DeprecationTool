@@ -17,13 +17,6 @@ module Requests =
   let getResponse<'T when 'T :> OrganizationResponse> (proxy:IOrganizationService) request =
     (proxy.Execute(request)) :?> 'T
 
-  let filterValidAttribute (x: AttributeMetadata) =
-       x.Description <> null
-    && x.Description.UserLocalizedLabel <> null
-    && x.DisplayName<> null
-    && x.DisplayName.UserLocalizedLabel <> null
-    && x.IsValidForAdvancedFind <> null
-
   let internal retrieveMultiple proxy logicalName (query:QueryExpression) = 
     query.PageInfo <- PagingInfo()
 
@@ -126,7 +119,6 @@ module Requests =
     req.MergeLabels <- false
 
     req
-
 
   let executeRequests (proxy: IOrganizationService) (reqs: OrganizationRequest[]) =
     let req = ExecuteMultipleRequest()
