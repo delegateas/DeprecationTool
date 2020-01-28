@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Delegate.DeprecationTool</id>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <title>Deprecation Tool</title>
     <authors>Delegate A/S,Ahmad Sattar,Magnus Gether Sørensen</authors>
     <owners>Delegateas</owners>
@@ -18,6 +18,10 @@
     <description>Field deprecation tool for XRM</description>
     <summary>Field deprecation tool for XRM</summary>
     <releaseNotes>
+      1.0.9 - 28/01/2020
+      * Fixes buttons on entity view
+      * revamp metadata to be human readable
+      * other visual fixes
       1.0.8 - 19/01/2020
       * Fields are in a sortable listview, and sorted by default
       * Fixed issues with solution dropdown after reload all
