@@ -311,7 +311,7 @@ namespace DeprecationTool
             for (var i = 0; i < entityFieldList.Items.Count; i++)
             {
                 var field = entityFieldList.Items[i];
-                field.ImageIndex = (int) ((Deprecate.MetaData)field.Tag).deprecationState;
+                field.ImageKey = Deprecate.DeprecationStateToCheckBoxLiteral(((Deprecate.MetaData)field.Tag).deprecationState);
             }
         }
 
@@ -322,7 +322,7 @@ namespace DeprecationTool
                 var field = entityFieldList.Items.Cast<ListViewItem>().ElementAt(i);
                 var metadata = ((Deprecate.MetaData)field.Tag);
                 if (metadata.deprecationState == Deprecate.DeprecationState.Partial)
-                    field.ImageIndex = (int)CheckState.Checked;
+                    field.ImageKey = Deprecate.CHECKED;
             }
         }
 
