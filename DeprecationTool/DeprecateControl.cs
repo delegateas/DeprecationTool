@@ -175,7 +175,7 @@ namespace DeprecationTool
         private void PopulateFieldListView(Deprecate.MetaData[] fields)
         {
             ClearFieldList();
-            FieldButtonEnabled(true);
+            FieldButtonsEnabled(true);
 
             foreach (var field in fields)
             {
@@ -212,11 +212,11 @@ namespace DeprecationTool
 
         private void ClearFieldList()
         {
-            FieldButtonEnabled(false);
+            FieldButtonsEnabled(false);
             entityFieldList.Items.Clear();
         }
 
-        private void FieldButtonEnabled(bool isOn)
+        private void FieldButtonsEnabled(bool isOn)
         {
             resetButton.Enabled = isOn;
             fixPartialButton.Enabled = isOn;
@@ -311,7 +311,7 @@ namespace DeprecationTool
             for (var i = 0; i < entityFieldList.Items.Count; i++)
             {
                 var field = entityFieldList.Items[i];
-                field.ImageIndex = (int) ((Deprecate.MetaData)field.Tag).deprecationState;
+                field.ImageKey = Deprecate.DeprecationStateToCheckBoxLiteral(((Deprecate.MetaData)field.Tag).deprecationState);
             }
         }
 
@@ -322,13 +322,14 @@ namespace DeprecationTool
                 var field = entityFieldList.Items.Cast<ListViewItem>().ElementAt(i);
                 var metadata = ((Deprecate.MetaData)field.Tag);
                 if (metadata.deprecationState == Deprecate.DeprecationState.Partial)
-                    field.ImageIndex = (int)CheckState.Checked;
+                    field.ImageKey = Deprecate.CHECKED;
             }
         }
 
         private void applyButton_Click(object sender, EventArgs e)
         {
             var attrWithCheckedState = FieldsWithCheckedState();
+            FieldButtonsEnabled(false);
 
             WorkAsync(new WorkAsyncInfo
             {
@@ -342,6 +343,7 @@ namespace DeprecationTool
                 {
                     if (args.Error != null)
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    FieldButtonsEnabled(true);
                 }
             });
         }
@@ -376,21 +378,29 @@ namespace DeprecationTool
             theListView.Sort();
         }
 
+        private void updateListItemCheckedState(ListViewItem item)
+        {
+            item.ImageKey = item.ImageKey == Deprecate.CHECKED
+                    ? Deprecate.UNCHECKED
+                    : Deprecate.CHECKED;
+        }
+
         private void fieldListMouseClick(object sender, MouseEventArgs e)
         {
             ListView theListView = (ListView)sender;
+            var item = theListView.FocusedItem;
+
             if (e.Button == MouseButtons.Right)
             {
-                if (theListView.FocusedItem != null && theListView.FocusedItem.Bounds.Contains(e.Location))
+                if (item != null && item.Bounds.Contains(e.Location))
                 {
                     fieldListContextMenu.Show(Cursor.Position);
                 }
-            }else if (e.Button == MouseButtons.Left)
+
+            }
+            else if (e.Button == MouseButtons.Left)
             {
-                var element = theListView.FocusedItem;
-                element.ImageKey = element.ImageKey == Deprecate.CHECKED
-                    ? Deprecate.UNCHECKED
-                    : Deprecate.CHECKED;
+                updateListItemCheckedState(item);
             }
         }
 
@@ -402,12 +412,7 @@ namespace DeprecationTool
                 for (var i = 0; i < items.Count(); i++)
                 {
                     var item = items.ElementAt(i);
-                    // Take current index with modulo of 2, subtract that with 1.
-                    // 1 turns into 0
-                    // 2 turns into 1
-                    // 3 turns into 0
-                    // Repeated modulo because % on negative numbers are negative otherwise.
-                    item.ImageIndex = 1 - ((item.ImageIndex % 2 + 2) % 2);
+                    updateListItemCheckedState(item);
                 }
 
                 e.Handled = e.SuppressKeyPress = true;
