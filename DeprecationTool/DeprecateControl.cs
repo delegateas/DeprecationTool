@@ -376,21 +376,29 @@ namespace DeprecationTool
             theListView.Sort();
         }
 
+        private void updateListItemCheckedState(ListViewItem item)
+        {
+            item.ImageKey = item.ImageKey == Deprecate.CHECKED
+                    ? Deprecate.UNCHECKED
+                    : Deprecate.CHECKED;
+        }
+
         private void fieldListMouseClick(object sender, MouseEventArgs e)
         {
             ListView theListView = (ListView)sender;
+            var item = theListView.FocusedItem;
+
             if (e.Button == MouseButtons.Right)
             {
-                if (theListView.FocusedItem != null && theListView.FocusedItem.Bounds.Contains(e.Location))
+                if (item != null && item.Bounds.Contains(e.Location))
                 {
                     fieldListContextMenu.Show(Cursor.Position);
                 }
-            }else if (e.Button == MouseButtons.Left)
+
+            }
+            else if (e.Button == MouseButtons.Left)
             {
-                var element = theListView.FocusedItem;
-                element.ImageKey = element.ImageKey == Deprecate.CHECKED
-                    ? Deprecate.UNCHECKED
-                    : Deprecate.CHECKED;
+                updateListItemCheckedState(item);
             }
         }
 
@@ -402,12 +410,7 @@ namespace DeprecationTool
                 for (var i = 0; i < items.Count(); i++)
                 {
                     var item = items.ElementAt(i);
-                    // Take current index with modulo of 2, subtract that with 1.
-                    // 1 turns into 0
-                    // 2 turns into 1
-                    // 3 turns into 0
-                    // Repeated modulo because % on negative numbers are negative otherwise.
-                    item.ImageIndex = 1 - ((item.ImageIndex % 2 + 2) % 2);
+                    updateListItemCheckedState(item);
                 }
 
                 e.Handled = e.SuppressKeyPress = true;
