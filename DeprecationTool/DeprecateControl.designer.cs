@@ -52,6 +52,7 @@ namespace DeprecationTool
             this.applyButton = new System.Windows.Forms.Button();
             this.fixPartialButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.fieldReloadButton = new System.Windows.Forms.Button();
             this.toolStripMenu.SuspendLayout();
             this.fieldListContextMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -163,7 +164,6 @@ namespace DeprecationTool
             this.entityFieldList.MouseClick += fieldListMouseClick;
             this.entityFieldList.View = View.Details;
 
-
             // 
             // EntityFieldLogicalName
             // 
@@ -180,7 +180,7 @@ namespace DeprecationTool
             this.fieldListContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showDependencyMenuItem});
             this.fieldListContextMenu.Name = "fieldListContextMenu";
-            this.fieldListContextMenu.Size = new System.Drawing.Size(195, 48);
+            this.fieldListContextMenu.Size = new System.Drawing.Size(195, 26);
             // 
             // showDependencyMenuItem
             // 
@@ -196,7 +196,7 @@ namespace DeprecationTool
             this.resetButton.Enabled = false;
             this.resetButton.Location = new System.Drawing.Point(6, 7);
             this.resetButton.Name = "resetButton";
-            this.resetButton.Size = new System.Drawing.Size(48, 47);
+            this.resetButton.Size = new System.Drawing.Size(48, 49);
             this.resetButton.TabIndex = 7;
             this.resetButton.Text = "Reset";
             this.resetButton.UseVisualStyleBackColor = true;
@@ -209,7 +209,7 @@ namespace DeprecationTool
             this.applyButton.Enabled = false;
             this.applyButton.Location = new System.Drawing.Point(206, 7);
             this.applyButton.Name = "applyButton";
-            this.applyButton.Size = new System.Drawing.Size(58, 47);
+            this.applyButton.Size = new System.Drawing.Size(58, 49);
             this.applyButton.TabIndex = 8;
             this.applyButton.Text = "Apply";
             this.applyButton.UseVisualStyleBackColor = true;
@@ -221,7 +221,7 @@ namespace DeprecationTool
             this.fixPartialButton.Enabled = false;
             this.fixPartialButton.Location = new System.Drawing.Point(102, 7);
             this.fixPartialButton.Name = "fixPartialButton";
-            this.fixPartialButton.Size = new System.Drawing.Size(60, 47);
+            this.fixPartialButton.Size = new System.Drawing.Size(60, 49);
             this.fixPartialButton.TabIndex = 9;
             this.fixPartialButton.Text = "Fix Partial";
             this.fixPartialButton.UseVisualStyleBackColor = true;
@@ -237,6 +237,7 @@ namespace DeprecationTool
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.fieldReloadButton);
             this.splitContainer1.Panel1.Controls.Add(this.entityFieldList);
             // 
             // splitContainer1.Panel2
@@ -248,6 +249,17 @@ namespace DeprecationTool
             this.splitContainer1.SplitterDistance = 209;
             this.splitContainer1.SplitterWidth = 3;
             this.splitContainer1.TabIndex = 10;
+            // 
+            // button1
+            // 
+            this.fieldReloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.fieldReloadButton.Location = new System.Drawing.Point(224, 4);
+            this.fieldReloadButton.Name = "button1";
+            this.fieldReloadButton.Size = new System.Drawing.Size(53, 23);
+            this.fieldReloadButton.TabIndex = 7;
+            this.fieldReloadButton.Text = "Reload";
+            this.fieldReloadButton.UseVisualStyleBackColor = true;
+            this.fieldReloadButton.Click += new System.EventHandler(this.fieldReload_Click);
             // 
             // DeprecateControl
             // 
@@ -290,5 +302,8 @@ namespace DeprecationTool
         private SplitContainer splitContainer1;
         private ToolStripButton tsInfo;
         private ToolStripMenuItem showDependencyMenuItem;
+        private Button fieldReloadButton;
+
+
     }
 }
