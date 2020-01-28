@@ -14,7 +14,8 @@ namespace DeprecationTool
 {
     public partial class DeprecateControl : PluginControlBase
     {
-        private ListViewItemComparer entityListViewComparer;
+        private ListViewItemComparer fieldComparer;
+        private ListViewItemComparer entityComparer;
         private FormState formState;
         private Settings pluginSettings;
         private Deprecate.SolutionData[] solutions;
@@ -24,8 +25,11 @@ namespace DeprecationTool
         {
             InitializeComponent();
 
-            this.entityListViewComparer = new ListViewItemComparer();
-            this.entityFieldList.ListViewItemSorter = this.entityListViewComparer;
+            this.fieldComparer  = new ListViewItemComparer(this.entityFieldList.Columns);
+            this.entityComparer = new ListViewItemComparer(this.entityList.Columns);
+
+            this.entityFieldList.ListViewItemSorter = this.fieldComparer;
+            this.entityList.ListViewItemSorter = this.entityComparer;
         }
 
         private void DeprecateControl_Load(object sender, EventArgs e)
@@ -371,10 +375,17 @@ namespace DeprecationTool
             }
         }
 
+        private void entityListColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            ListView theListView = (ListView)sender;
+            entityComparer.toggleOrder(e.Column);
+            theListView.Sort();
+        }
+
         private void fieldListColumnClick(object sender, ColumnClickEventArgs e)
         {
             ListView theListView = (ListView)sender;
-            entityListViewComparer.toggleOrder(e.Column);
+            fieldComparer.toggleOrder(e.Column);
             theListView.Sort();
         }
 
@@ -438,10 +449,15 @@ namespace DeprecationTool
     class ListViewItemComparer : IComparer
     {
         // Start with false so we sync up with the beginning of the winform column state
-        public bool[] ascending { get; set; } = {true, true};
+        public bool[] ascending { get; set; }
         public int col { get; set; } = 0;
 
         public ListViewItemComparer() { }
+
+        public ListViewItemComparer(ListView.ColumnHeaderCollection columns)
+        {
+            ascending = Enumerable.Repeat(true, columns.Count).ToArray();
+        }
 
         public void toggleOrder(int givenCol) {
             if(ascending.Length > givenCol)
