@@ -21,6 +21,12 @@ module Deprecate =
   [<Literal>]
   let INDETERMINATE = "indeterminate";
 
+  [<Literal>]
+  let WAS_SEARCHABLE_YES = "yes";
+  [<Literal>]
+  let WAS_SEARCHABLE_NO = "no";
+
+
   type DeprecationState = Favored = 0 // same as not deprecated
                         | Deprecated = 1
                         | Partial = 2 // Partial deprecation means only the name has been prefixed as deprecated.
@@ -85,8 +91,10 @@ module Deprecate =
   type Action = Deprecate of Data: MetaData
               | Favor of Data : MetaData
 
+  // This should be done using a parser if it needs to be extended. This is not readable at all.
+  // especially if we need to provide backwards compatibility
   let deprecationStampPattern = 
-    @"\n(\(Deprecated:)\s(?<date>\d{2,}\/\d{2,}\/\d{4,}\s\d{2,}.\d{2,}.\d{2,})(,\ssearch:\s(?<searchable>1|0))?(\))"
+    @"\n?(\(Deprecated:)\s*(?<date>\d{2,}\/\d{2,}\/\d{4,}\s*\d{2,}.\d{2,}.\d{2,}),\s*(was searchable|search):\s*(?<searchable>(1|0)|(yes|no))?(\))"
 
   let startsWithPrefix (text: string) prefix =
     text.StartsWith(prefix, true, CultureInfo.InvariantCulture)
@@ -238,7 +246,8 @@ module Deprecate =
 
   let getDescriptionSearchable (description: string) = 
     match Regex.Match(description, deprecationStampPattern).Groups.["searchable"].Value with
-    | "0" -> false
+    | "0"  -> false
+    | "no" -> false
     | _   -> true // if no searchable vlaue is found, just return 1, implying we should reenable search
   
 
@@ -247,8 +256,8 @@ module Deprecate =
 
   let createOrUpdateDescriptionStamp (description: string) (wasSearchable: bool) =
     let cleanDescription = removeDescriptionTimestamp description
-    let searchable = if wasSearchable then "1" else "0"
-    let deprecationDate = sprintf "\n(Deprecated: %A, search: %s)" DateTime.Now searchable
+    let searchable = if wasSearchable then WAS_SEARCHABLE_YES else WAS_SEARCHABLE_NO
+    let deprecationDate = sprintf "\n(Deprecated: %A, was searchable: %s)" DateTime.Now searchable
     cleanDescription + deprecationDate
 
   let safeAddDeprecationPrefix (displayName: string) (prefix: string) =
