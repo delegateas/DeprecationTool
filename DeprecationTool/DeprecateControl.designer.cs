@@ -45,11 +45,10 @@ namespace DeprecationTool
             this.EntityHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.fieldListContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showDependencyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.resetButton = new System.Windows.Forms.Button();
+            this.reloadButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.fixPartialButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.fieldReloadButton = new System.Windows.Forms.Button();
             this.entityFieldList = new DeprecationTool.CustomControls.CheckBoxListView();
             this.EntityFieldLogicalName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.EntityFieldDisplayName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -96,7 +95,7 @@ namespace DeprecationTool
             this.tsReload.Name = "tsReload";
             this.tsReload.Size = new System.Drawing.Size(86, 28);
             this.tsReload.Text = "Reload all";
-            this.tsReload.Click += new System.EventHandler(this.reload_click);
+            this.tsReload.Click += new System.EventHandler(this.reload_all_click);
             // 
             // tsSettings
             // 
@@ -137,7 +136,7 @@ namespace DeprecationTool
             this.entityList.TabIndex = 5;
             this.entityList.UseCompatibleStateImageBehavior = false;
             this.entityList.View = System.Windows.Forms.View.Details;
-            this.entityList.ColumnClick += entityListColumnClick;
+            this.entityList.ColumnClick += new ColumnClickEventHandler(entityListColumnClick);
             this.entityList.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.entityListView_SelectedIndexChanged);
             // 
             // EntityHeader
@@ -161,16 +160,16 @@ namespace DeprecationTool
             // 
             // resetButton
             // 
-            this.resetButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.reloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.resetButton.Enabled = false;
-            this.resetButton.Location = new System.Drawing.Point(6, 7);
-            this.resetButton.Name = "resetButton";
-            this.resetButton.Size = new System.Drawing.Size(48, 26);
-            this.resetButton.TabIndex = 7;
-            this.resetButton.Text = "Reset";
-            this.resetButton.UseVisualStyleBackColor = true;
-            this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
+            this.reloadButton.Enabled = false;
+            this.reloadButton.Location = new System.Drawing.Point(6, 7);
+            this.reloadButton.Name = "resetButton";
+            this.reloadButton.Size = new System.Drawing.Size(54, 27);
+            this.reloadButton.TabIndex = 7;
+            this.reloadButton.Text = "Reload";
+            this.reloadButton.UseVisualStyleBackColor = true;
+            this.reloadButton.Click += new System.EventHandler(this.reloadButton_Click);
             // 
             // applyButton
             // 
@@ -179,7 +178,7 @@ namespace DeprecationTool
             this.applyButton.Enabled = false;
             this.applyButton.Location = new System.Drawing.Point(219, 7);
             this.applyButton.Name = "applyButton";
-            this.applyButton.Size = new System.Drawing.Size(58, 26);
+            this.applyButton.Size = new System.Drawing.Size(58, 27);
             this.applyButton.TabIndex = 8;
             this.applyButton.Text = "Apply";
             this.applyButton.UseVisualStyleBackColor = true;
@@ -191,7 +190,7 @@ namespace DeprecationTool
             this.fixPartialButton.Enabled = false;
             this.fixPartialButton.Location = new System.Drawing.Point(109, 7);
             this.fixPartialButton.Name = "fixPartialButton";
-            this.fixPartialButton.Size = new System.Drawing.Size(60, 26);
+            this.fixPartialButton.Size = new System.Drawing.Size(60, 27);
             this.fixPartialButton.TabIndex = 9;
             this.fixPartialButton.Text = "Fix Partial";
             this.fixPartialButton.UseVisualStyleBackColor = true;
@@ -207,29 +206,17 @@ namespace DeprecationTool
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.fieldReloadButton);
             this.splitContainer1.Panel1.Controls.Add(this.entityFieldList);
             // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.fixPartialButton);
-            this.splitContainer1.Panel2.Controls.Add(this.resetButton);
+            this.splitContainer1.Panel2.Controls.Add(this.reloadButton);
             this.splitContainer1.Panel2.Controls.Add(this.applyButton);
             this.splitContainer1.Size = new System.Drawing.Size(280, 269);
             this.splitContainer1.SplitterDistance = 234;
             this.splitContainer1.SplitterWidth = 3;
             this.splitContainer1.TabIndex = 10;
-            // 
-            // fieldReloadButton
-            // 
-            this.fieldReloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.fieldReloadButton.Location = new System.Drawing.Point(206, 3);
-            this.fieldReloadButton.Name = "fieldReloadButton";
-            this.fieldReloadButton.Size = new System.Drawing.Size(53, 23);
-            this.fieldReloadButton.TabIndex = 7;
-            this.fieldReloadButton.Text = "Reload";
-            this.fieldReloadButton.UseVisualStyleBackColor = true;
-            this.fieldReloadButton.Click += new System.EventHandler(this.fieldReload_Click);
             // 
             // entityFieldList
             // 
@@ -245,9 +232,9 @@ namespace DeprecationTool
             this.entityFieldList.TabIndex = 6;
             this.entityFieldList.UseCompatibleStateImageBehavior = false;
             this.entityFieldList.View = System.Windows.Forms.View.Details;
-            this.entityFieldList.ColumnClick += fieldListColumnClick;
-            this.entityFieldList.KeyDown += fieldListOnkeyboardPress;
-            this.entityFieldList.MouseClick += fieldListMouseClick;
+            this.entityFieldList.ColumnClick += new ColumnClickEventHandler(this.fieldListColumnClick);
+            this.entityFieldList.KeyDown += new KeyEventHandler(this.fieldListOnkeyboardPress);
+            this.entityFieldList.MouseClick += new MouseEventHandler(this.fieldListMouseClick);
             // 
             // EntityFieldLogicalName
             // 
@@ -288,7 +275,7 @@ namespace DeprecationTool
         private System.Windows.Forms.ToolStripSeparator tssSeparator1;
         private System.Windows.Forms.ListView entityList;
         private CustomControls.CheckBoxListView entityFieldList;
-        private System.Windows.Forms.Button resetButton;
+        private System.Windows.Forms.Button reloadButton;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.ToolStripComboBox solutionComboBox;
         private ContextMenuStrip fieldListContextMenu;
@@ -300,7 +287,6 @@ namespace DeprecationTool
         private SplitContainer splitContainer1;
         private ToolStripButton tsInfo;
         private ToolStripMenuItem showDependencyMenuItem;
-        private Button fieldReloadButton;
 
 
     }

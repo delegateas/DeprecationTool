@@ -68,9 +68,13 @@ module Requests =
       |> Array.filter (fun x -> x.AttributeOf = null)
       |> Array.filter (fun x -> startsWithPrefix x.LogicalName filterPrefix)
       |> Array.map (curriedDeprecationType)
+    
+    let returnValue = {
+      entityGuid = metadataId
+      fields = filteredMetaData
+    }
 
-
-    (resp.EntityMetadata.LogicalName, filteredMetaData)
+    (resp.EntityMetadata.LogicalName, returnValue)
 
   let retrieveSolutionEntities proxy (solutions: SolutionData[]) fieldPrefix deprecationPrefix =
     solutions
@@ -86,6 +90,7 @@ module Requests =
         |> Array.map (fun sc -> 
           getEntityAttributesFromId proxy (sc.Attributes.["objectid"] :?> Guid) fieldPrefix deprecationPrefix)
         |> dict
+        |> (fun x -> Dictionary(x))
       (sol.uniqueName, entityMetadata)
     )
     |> dict
