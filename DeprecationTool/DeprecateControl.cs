@@ -175,7 +175,7 @@ namespace DeprecationTool
         private void PopulateFieldListView(Deprecate.MetaData[] fields)
         {
             ClearFieldList();
-            FieldButtonEnabled(true);
+            FieldButtonsEnabled(true);
 
             foreach (var field in fields)
             {
@@ -212,11 +212,11 @@ namespace DeprecationTool
 
         private void ClearFieldList()
         {
-            FieldButtonEnabled(false);
+            FieldButtonsEnabled(false);
             entityFieldList.Items.Clear();
         }
 
-        private void FieldButtonEnabled(bool isOn)
+        private void FieldButtonsEnabled(bool isOn)
         {
             resetButton.Enabled = isOn;
             fixPartialButton.Enabled = isOn;
@@ -329,6 +329,7 @@ namespace DeprecationTool
         private void applyButton_Click(object sender, EventArgs e)
         {
             var attrWithCheckedState = FieldsWithCheckedState();
+            FieldButtonsEnabled(false);
 
             WorkAsync(new WorkAsyncInfo
             {
@@ -342,6 +343,7 @@ namespace DeprecationTool
                 {
                     if (args.Error != null)
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    FieldButtonsEnabled(true);
                 }
             });
         }

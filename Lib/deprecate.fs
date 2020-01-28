@@ -94,7 +94,7 @@ module Deprecate =
   // This should be done using a parser if it needs to be extended. This is not readable at all.
   // especially if we need to provide backwards compatibility
   let deprecationStampPattern = 
-    @"\n(\(Deprecated:)\s*(?<date>\d{2,}\/\d{2,}\/\d{4,}\s*\d{2,}.\d{2,}.\d{2,}),\s*(was searchable|search):\s*(?<searchable>(1|0)|(yes|no))?(\))"
+    @"\n?(\(Deprecated:)\s*(?<date>\d{2,}\/\d{2,}\/\d{4,}\s*\d{2,}.\d{2,}.\d{2,}),\s*(was searchable|search):\s*(?<searchable>(1|0)|(yes|no))?(\))"
 
   let startsWithPrefix (text: string) prefix =
     text.StartsWith(prefix, true, CultureInfo.InvariantCulture)
