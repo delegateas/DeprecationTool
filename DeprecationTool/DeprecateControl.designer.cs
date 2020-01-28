@@ -43,9 +43,6 @@ namespace DeprecationTool
             this.tsClose = new System.Windows.Forms.ToolStripButton();
             this.entityList = new System.Windows.Forms.ListView();
             this.EntityHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.entityFieldList = new DeprecationTool.CustomControls.CheckBoxListView();
-            this.EntityFieldLogicalName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.EntityFieldDisplayName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.fieldListContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showDependencyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetButton = new System.Windows.Forms.Button();
@@ -53,6 +50,9 @@ namespace DeprecationTool
             this.fixPartialButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.fieldReloadButton = new System.Windows.Forms.Button();
+            this.entityFieldList = new DeprecationTool.CustomControls.CheckBoxListView();
+            this.EntityFieldLogicalName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.EntityFieldDisplayName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStripMenu.SuspendLayout();
             this.fieldListContextMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -145,36 +145,6 @@ namespace DeprecationTool
             this.EntityHeader.Text = "Name";
             this.EntityHeader.Width = 150;
             // 
-            // entityFieldList
-            // 
-            this.entityFieldList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.EntityFieldLogicalName,
-            this.EntityFieldDisplayName});
-            this.entityFieldList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.entityFieldList.FullRowSelect = true;
-            this.entityFieldList.HideSelection = false;
-            this.entityFieldList.Location = new System.Drawing.Point(0, 0);
-            this.entityFieldList.Name = "entityFieldList";
-            this.entityFieldList.Size = new System.Drawing.Size(280, 209);
-            this.entityFieldList.TabIndex = 6;
-            this.entityFieldList.UseCompatibleStateImageBehavior = false;
-            this.entityFieldList.View = System.Windows.Forms.View.Details;
-            this.entityFieldList.ColumnClick += fieldListColumnClick;
-            this.entityFieldList.KeyDown += fieldListOnkeyboardPress;
-            this.entityFieldList.MouseClick += fieldListMouseClick;
-            this.entityFieldList.View = View.Details;
-
-            // 
-            // EntityFieldLogicalName
-            // 
-            this.EntityFieldLogicalName.Text = "Logical name";
-            this.EntityFieldLogicalName.Width = 80;
-            // 
-            // EntityFieldDisplayName
-            // 
-            this.EntityFieldDisplayName.Text = "Display name";
-            this.EntityFieldDisplayName.Width = 80;
-            // 
             // fieldListContextMenu
             // 
             this.fieldListContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -196,7 +166,7 @@ namespace DeprecationTool
             this.resetButton.Enabled = false;
             this.resetButton.Location = new System.Drawing.Point(6, 7);
             this.resetButton.Name = "resetButton";
-            this.resetButton.Size = new System.Drawing.Size(48, 49);
+            this.resetButton.Size = new System.Drawing.Size(48, 26);
             this.resetButton.TabIndex = 7;
             this.resetButton.Text = "Reset";
             this.resetButton.UseVisualStyleBackColor = true;
@@ -207,9 +177,9 @@ namespace DeprecationTool
             this.applyButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.applyButton.Enabled = false;
-            this.applyButton.Location = new System.Drawing.Point(206, 7);
+            this.applyButton.Location = new System.Drawing.Point(219, 7);
             this.applyButton.Name = "applyButton";
-            this.applyButton.Size = new System.Drawing.Size(58, 49);
+            this.applyButton.Size = new System.Drawing.Size(58, 26);
             this.applyButton.TabIndex = 8;
             this.applyButton.Text = "Apply";
             this.applyButton.UseVisualStyleBackColor = true;
@@ -219,9 +189,9 @@ namespace DeprecationTool
             // 
             this.fixPartialButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.fixPartialButton.Enabled = false;
-            this.fixPartialButton.Location = new System.Drawing.Point(102, 7);
+            this.fixPartialButton.Location = new System.Drawing.Point(109, 7);
             this.fixPartialButton.Name = "fixPartialButton";
-            this.fixPartialButton.Size = new System.Drawing.Size(60, 49);
+            this.fixPartialButton.Size = new System.Drawing.Size(60, 26);
             this.fixPartialButton.TabIndex = 9;
             this.fixPartialButton.Text = "Fix Partial";
             this.fixPartialButton.UseVisualStyleBackColor = true;
@@ -246,20 +216,48 @@ namespace DeprecationTool
             this.splitContainer1.Panel2.Controls.Add(this.resetButton);
             this.splitContainer1.Panel2.Controls.Add(this.applyButton);
             this.splitContainer1.Size = new System.Drawing.Size(280, 269);
-            this.splitContainer1.SplitterDistance = 209;
+            this.splitContainer1.SplitterDistance = 234;
             this.splitContainer1.SplitterWidth = 3;
             this.splitContainer1.TabIndex = 10;
             // 
-            // button1
+            // fieldReloadButton
             // 
             this.fieldReloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.fieldReloadButton.Location = new System.Drawing.Point(224, 4);
-            this.fieldReloadButton.Name = "button1";
+            this.fieldReloadButton.Location = new System.Drawing.Point(206, 3);
+            this.fieldReloadButton.Name = "fieldReloadButton";
             this.fieldReloadButton.Size = new System.Drawing.Size(53, 23);
             this.fieldReloadButton.TabIndex = 7;
             this.fieldReloadButton.Text = "Reload";
             this.fieldReloadButton.UseVisualStyleBackColor = true;
             this.fieldReloadButton.Click += new System.EventHandler(this.fieldReload_Click);
+            // 
+            // entityFieldList
+            // 
+            this.entityFieldList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.EntityFieldLogicalName,
+            this.EntityFieldDisplayName});
+            this.entityFieldList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.entityFieldList.FullRowSelect = true;
+            this.entityFieldList.HideSelection = false;
+            this.entityFieldList.Location = new System.Drawing.Point(0, 0);
+            this.entityFieldList.Name = "entityFieldList";
+            this.entityFieldList.Size = new System.Drawing.Size(280, 234);
+            this.entityFieldList.TabIndex = 6;
+            this.entityFieldList.UseCompatibleStateImageBehavior = false;
+            this.entityFieldList.View = System.Windows.Forms.View.Details;
+            this.entityFieldList.ColumnClick += fieldListColumnClick;
+            this.entityFieldList.KeyDown += fieldListOnkeyboardPress;
+            this.entityFieldList.MouseClick += fieldListMouseClick;
+            // 
+            // EntityFieldLogicalName
+            // 
+            this.EntityFieldLogicalName.Text = "Logical name";
+            this.EntityFieldLogicalName.Width = 80;
+            // 
+            // EntityFieldDisplayName
+            // 
+            this.EntityFieldDisplayName.Text = "Display name";
+            this.EntityFieldDisplayName.Width = 80;
             // 
             // DeprecateControl
             // 
