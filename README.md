@@ -3,7 +3,7 @@
 This tool helps you mark fields as deprecated by
 1. Prepending display name with a deprecation prefix, such as "zz_"
 2. Marking field as not searchable (IsValidForAdvancedFind set to no)
-3. Appending deprecation metadata at the end of the field's description,    <br />e.g. "(Deprecated: 29/10/2019 09.17.51, search: 1)"
+3. Appending deprecation metadata at the end of the field's description,    <br />e.g. "(Deprecated: 29/10/2019 09.17.51, was searchable: yes)"
 ![Deprecated plugin](images/deprecated_field.png)
 
 Note, this tool is non-destructive.
