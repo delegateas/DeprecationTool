@@ -18,8 +18,8 @@ namespace DeprecationTool
         private ListViewItemComparer entityComparer;
         private FormState formState;
         private Settings pluginSettings;
-        private Deprecate.SolutionData[] solutions;
-        private IDictionary<string, IDictionary<string, Deprecate.MetaData[]>> solutionsWithData;
+        private Types.SolutionData[] solutions;
+        private IDictionary<string, IDictionary<string, Types.MetaData[]>> solutionsWithData;
 
         public DeprecateControl()
         {
@@ -107,7 +107,7 @@ namespace DeprecationTool
                 Message = "Fetching entities and attributes",
                 Work = (worker, args) =>
                 {
-                    args.Result = Deprecate.retrieveSolutionEntities(Service, solutions,
+                    args.Result = Requests.retrieveSolutionEntities(Service, solutions,
                         pluginSettings.FieldPrefix,
                         pluginSettings.DeprecationPrefix);
                 },
@@ -116,7 +116,7 @@ namespace DeprecationTool
                     if (args.Error != null)
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    if (!(args.Result is IDictionary<string, IDictionary<string, Deprecate.MetaData[]>> result)) return;
+                    if (!(args.Result is IDictionary<string, IDictionary<string, Types.MetaData[]>> result)) return;
 
                     solutionsWithData = result;
                     PopulateSolutionsComboBox();
@@ -131,14 +131,14 @@ namespace DeprecationTool
                 Message = "Fetching solutions",
                 Work = (worker, args) =>
                 {
-                    args.Result = Deprecate.retrieveSolutionNames(Service, new[] {"Default"}, "");
+                    args.Result = Requests.retrieveSolutionNames(Service, new[] {"Default"}, "");
                 },
                 PostWorkCallBack = args =>
                 {
                     if (args.Error != null)
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    if (!(args.Result is Deprecate.SolutionData[] result)) return;
+                    if (!(args.Result is Types.SolutionData[] result)) return;
 
                     solutions = result;
                     WorkAsync(FetchEntities());
@@ -160,7 +160,7 @@ namespace DeprecationTool
                 solutionsWithData.TryGetValue(logicalName, out var entities);
                 var entityCountText = $"[{entities?.Count.ToString() ?? "n/a"}] {logicalName} ";
 
-                solutionComboBox.Items.Add(new Deprecate.DisplayValue(entityCountText, logicalName));
+                solutionComboBox.Items.Add(new Types.DisplayValue(entityCountText, logicalName));
             }
 
             solutionComboBox.Text = "Select solution here.";
@@ -176,7 +176,7 @@ namespace DeprecationTool
                 entityList.Items.Add(new ListViewItem(new[] {item}));
         }
 
-        private void PopulateFieldListView(Deprecate.MetaData[] fields)
+        private void PopulateFieldListView(Types.MetaData[] fields)
         {
             ClearFieldList();
             FieldButtonsEnabled(true);
@@ -189,7 +189,7 @@ namespace DeprecationTool
                     Text = names.logicalName,
                     Tag = field,
                     ImageIndex = (int) field.deprecationState,
-                    ImageKey = Deprecate.DeprecationStateToCheckBoxLiteral(field.deprecationState)
+                    ImageKey = Functions.DeprecationStateToCheckBoxLiteral(field.deprecationState)
                 };
                 // First column is given by Text field, subsequent ones are given by subitems
                 itemToAdd.SubItems.AddRange(new[] { names.displayName });
@@ -260,7 +260,7 @@ namespace DeprecationTool
         private void solutionComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             var solutionList = (ToolStripComboBox) sender;
-            var currentlySelected = (Deprecate.DisplayValue) solutionList.SelectedItem;
+            var currentlySelected = (Types.DisplayValue) solutionList.SelectedItem;
             var currentIndex = solutionList.SelectedIndex;
 
             if (currentlySelected == null) return;
@@ -302,7 +302,7 @@ namespace DeprecationTool
             PopulateFieldListView(selectedEntityFields);
         }
 
-        private Deprecate.MetaData[] GetEntityFields(ListViewItem currentlySelected)
+        private Types.MetaData[] GetEntityFields(ListViewItem currentlySelected)
         {
             if (!solutionsWithData.TryGetValue(formState.SelectedSolution, out var selectedSolution)) return null;
             if (!selectedSolution.TryGetValue(currentlySelected.SubItems[0].Text, out var selectedEntityFields))
@@ -315,7 +315,7 @@ namespace DeprecationTool
             for (var i = 0; i < entityFieldList.Items.Count; i++)
             {
                 var field = entityFieldList.Items[i];
-                field.ImageKey = Deprecate.DeprecationStateToCheckBoxLiteral(((Deprecate.MetaData)field.Tag).deprecationState);
+                field.ImageKey = Functions.DeprecationStateToCheckBoxLiteral(((Types.MetaData)field.Tag).deprecationState);
             }
         }
 
@@ -324,9 +324,9 @@ namespace DeprecationTool
             for (var i = 0; i < entityFieldList.Items.Count; i++)
             {
                 var field = entityFieldList.Items.Cast<ListViewItem>().ElementAt(i);
-                var metadata = ((Deprecate.MetaData)field.Tag);
-                if (metadata.deprecationState == Deprecate.DeprecationState.Partial)
-                    field.ImageKey = Deprecate.CHECKED;
+                var metadata = ((Types.MetaData)field.Tag);
+                if (metadata.deprecationState == Types.DeprecationState.Partial)
+                    field.ImageKey = Types.CHECKED;
             }
         }
 
@@ -352,14 +352,14 @@ namespace DeprecationTool
             });
         }
 
-        private Deprecate.MetaDataWithCheck[] FieldsWithCheckedState()
+        private Types.MetaDataWithCheck[] FieldsWithCheckedState()
         {
             var fieldList = entityFieldList;
             var attrWithCheckedState = entityFieldList.Items.Cast<ListViewItem>()
                 .Select((item, i) =>
-                    new Deprecate.MetaDataWithCheck(
-                        (Deprecate.MetaData) item.Tag,
-                        Deprecate.CheckBoxLiteralToDeprecationState(item.ImageKey))
+                    new Types.MetaDataWithCheck(
+                        (Types.MetaData) item.Tag,
+                        Functions.CheckBoxLiteralToDeprecationState(item.ImageKey))
                 )
                 .ToArray();
             return attrWithCheckedState;
@@ -391,9 +391,9 @@ namespace DeprecationTool
 
         private void updateListItemCheckedState(ListViewItem item)
         {
-            item.ImageKey = item.ImageKey == Deprecate.CHECKED
-                    ? Deprecate.UNCHECKED
-                    : Deprecate.CHECKED;
+            item.ImageKey = item.ImageKey == Types.CHECKED
+                    ? Types.UNCHECKED
+                    : Types.CHECKED;
         }
 
         private void fieldListMouseClick(object sender, MouseEventArgs e)
@@ -435,14 +435,19 @@ namespace DeprecationTool
             var item = entityFieldList.FocusedItem;
             if (item != null)
             {
-                var meta = (Deprecate.MetaData)item.Tag;
-                var res = Deprecate.getDependencyCountForEntity(Service, meta);
+                var meta = (Types.MetaData)item.Tag;
+                var res = Requests.getDependencyCountForEntity(Service, meta);
                 string message = $"Entity {meta.entityLName} has {res} {(res == 1 ? "dependency." : "dependencies." )}";
                 string caption = $"Dependency for {meta.entityLName}";
                 var result = MessageBox.Show(message, caption,
                                              MessageBoxButtons.OK);
 
             }
+        }
+
+        private void fieldReload_Click(object sender, EventArgs e)
+        {
+
         }
     }
 

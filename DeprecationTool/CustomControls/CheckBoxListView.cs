@@ -31,9 +31,9 @@ namespace DeprecationTool.CustomControls
             Bitmap checkedstate = new Bitmap(16, 16);
             CheckBoxRenderer.DrawCheckBox(Graphics.FromImage(checkedstate), new Point(0, 3), System.Windows.Forms.VisualStyles.CheckBoxState.CheckedNormal);
 
-            CheckStates.Images.Add(Deprecate.UNCHECKED, uncheckedstate);
-            CheckStates.Images.Add(Deprecate.CHECKED, checkedstate);
-            CheckStates.Images.Add(Deprecate.INDETERMINATE, indeterminate);
+            CheckStates.Images.Add(Types.UNCHECKED, uncheckedstate);
+            CheckStates.Images.Add(Types.CHECKED, checkedstate);
+            CheckStates.Images.Add(Types.INDETERMINATE, indeterminate);
 
             SmallImageList = CheckStates;
         }
