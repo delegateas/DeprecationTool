@@ -27,7 +27,7 @@ Buttons *Reload*, *Fix partial* and *Apply* are enabled when an entity has been 
 The tool uses 3 states for checkboxes
 - Checked, means deprecated
 - Unchecked, means non-deprecated (or favored)
-- Checked but grayed out (still clickable), means partially deprecated
+- Filled square, means partially deprecated
 <br />![Deprecation states](images/deprecation_states.png)
 
 **Partially deprecated** simply specifies when a field only has a deprecation prefix (set in settings) in its display name, 
