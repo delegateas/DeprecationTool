@@ -87,8 +87,8 @@ module Deprecate =
     let builderWithPrefix = buildAction prefix
 
     pendingChanges attrs
-    |> Array.Parallel.map(fun x -> decideAction x.deprecationState x.metaData)
-    |> Array.Parallel.map(fun x -> builderWithPrefix x)
-    |> Array.Parallel.map(fun x -> x :> OrganizationRequest)
-    |> Array.chunkBySize(1000)
+    |> Array.Parallel.map (fun x -> decideAction x.deprecationState x.metaData)
+    |> Array.Parallel.map (builderWithPrefix)
+    |> Array.Parallel.map (fun x -> x :> OrganizationRequest)
+    |> Array.chunkBySize  1000
     |> Array.map(fun x -> executeRequests proxy x)
