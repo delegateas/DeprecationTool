@@ -9,11 +9,13 @@ open Parser
 open System.Text.RegularExpressions
 
 module Functions = 
-  let deprecationDescriptionRegex = 
-    @"\n?\(Deprecated.*\)$"
+  // This regex is a simple "first pass" of our parser, if we don't have this general structure
+  // in the description, we don't have a proper deprecation description tag.
+  let deprecationDescriptionPattern = 
+    @"\n?\((?i)Deprecated.*\)$"
 
   let descriptionDetails (description: string) = 
-    let firstPass = Regex.Match(description, deprecationDescriptionRegex)
+    let firstPass = Regex.Match(description, deprecationDescriptionPattern)
     if firstPass.Success
     then parseDescription firstPass.Value
     else None
@@ -41,12 +43,12 @@ module Functions =
   let attrStartsWithPrefix (attrMetaData: AttributeMetadata) prefix =
     startsWithPrefix (labelToString attrMetaData.DisplayName) prefix
 
-  let isSearchable (attrMetaData: AttributeMetadata) =
-    attrMetaData.IsValidForAdvancedFind.Value |> not
-
   let hasDeprecationDescription (attr: AttributeMetadata) = 
     let rawDescription = labelToString attr.Description
-    Regex.Match(rawDescription, deprecationDescriptionRegex).Success
+    Regex.Match(rawDescription, deprecationDescriptionPattern).Success
+
+  let isSearchable (attrMetaData: AttributeMetadata) =
+    attrMetaData.IsValidForAdvancedFind.Value |> not
 
   let isDeprecated (attr: AttributeMetadata) prefix =
     (isSearchable attr) && (hasDeprecationDescription attr) && (attrStartsWithPrefix attr prefix)
@@ -55,14 +57,13 @@ module Functions =
     (attrStartsWithPrefix attr prefix)
 
   let removeDescriptionTimestamp (description: string) =
-    Regex.Replace(description, deprecationDescriptionRegex, "");
+    Regex.Replace(description, deprecationDescriptionPattern, "");
 
   let getDeprecationState (attr: AttributeMetadata) prefix =
     match attr with
     | x when (isDeprecated x prefix) -> DeprecationState.Deprecated
     | x when (isPartiallyDeprecated x prefix) -> DeprecationState.Partial
     | _ -> DeprecationState.Favored
-
 
   let wasSearchable = function
   | Some(x) -> x.wasSearchable

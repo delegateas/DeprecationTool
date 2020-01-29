@@ -16,16 +16,16 @@ module Parser =
   
 
   let private parser =
-      let str_ws s = pstringCI s .>> spaces
-      let char_ws c = pchar c .>> spaces
+      let stringTrimmed s = pstringCI s .>> spaces
+      let charTrimmed c = pchar c .>> spaces
       let anyCharsTill pEnd = manyCharsTill anyChar pEnd
       let keyValue = anyCharsTill (pchar ',' <|> pchar ')')
       let onlyValueAfter prefix = prefix >>. keyValue
 
-      let searchableChoice = str_ws "search:" <|> str_ws "was searchable:"
-      let requiredChoice   = str_ws "was required:"
+      let searchableChoice = stringTrimmed "search:" <|> stringTrimmed "was searchable:"
+      let requiredChoice   = stringTrimmed "was required:"
 
-      let date          = onlyValueAfter <| str_ws "Deprecated:"
+      let date          = onlyValueAfter <| stringTrimmed "Deprecated:"
       let wasSearchable = spaces >>. onlyValueAfter searchableChoice
       let wasRequired   = opt (spaces >>. onlyValueAfter requiredChoice)
 
@@ -37,7 +37,7 @@ module Parser =
 
       let description = pipe3 date wasSearchable wasRequired createDeprecationDescription
 
-      opt unicodeSpaces >>. char_ws '(' >>. description .>> unicodeSpaces .>> eof
+      opt unicodeSpaces >>. charTrimmed '(' >>. description .>> unicodeSpaces .>> eof
 
   let parseDescription desc =
       match desc |> run parser with
