@@ -7,7 +7,7 @@ open Functions
 open Requests
 
 module Deprecate =
-  let createOrUpdateDescriptionStamp (description: string) (wasSearchable: bool) =
+  let createOrUpdateDescriptionStamp (description: string) (wasSearchable: bool) (wasRequired: bool) =
     let cleanDescription = removeDescriptionTimestamp description
     let deprecationDescription = 
       { date = DateTime.Now
@@ -38,12 +38,15 @@ module Deprecate =
     let attr = attrMetadata.attribute
     attrMetadata.deprecationState <- DeprecationState.Deprecated
 
+    let wasRequired = attr.RequiredLevel.Value = Metadata.AttributeRequiredLevel.ApplicationRequired
+
     let newDescription = 
-      createOrUpdateDescriptionStamp(labelToString attr.Description) attr.IsValidForAdvancedFind.Value
+      createOrUpdateDescriptionStamp (labelToString attr.Description) attr.IsValidForAdvancedFind.Value wasRequired
     attr.Description <- Label(newDescription, attrMetadata.locale)
     attr.Description.UserLocalizedLabel <- LocalizedLabel(newDescription, attrMetadata.locale)
 
     attr.IsValidForAdvancedFind <- BooleanManagedProperty(false)
+    attr.RequiredLevel <- Metadata.AttributeRequiredLevelManagedProperty(Metadata.AttributeRequiredLevel.None)
 
     let newDisplayName = safeAddDeprecationPrefix (labelToString attr.DisplayName) displayNamePrefix
     attr.DisplayName <- Label(newDisplayName, attrMetadata.locale)
@@ -56,8 +59,10 @@ module Deprecate =
     let attr = attrMetadata.attribute
     attrMetadata.deprecationState <- DeprecationState.Favored
 
-    let previousSearchable = isDescriptionSearchable (labelToString attr.Description)
-    attr.IsValidForAdvancedFind <- BooleanManagedProperty(previousSearchable)
+    let deprecateDescriptionDetails = descriptionDetails (labelToString attr.Description)
+    
+    attr.IsValidForAdvancedFind <- BooleanManagedProperty(wasSearchable deprecateDescriptionDetails)
+    attr.RequiredLevel <- Metadata.AttributeRequiredLevelManagedProperty(wasRequired deprecateDescriptionDetails)
 
     let newDescription = removeDescriptionTimestamp (labelToString attr.Description)
     attr.Description <- Label(newDescription, attrMetadata.locale)

@@ -39,7 +39,7 @@ module Parser =
 
       opt unicodeSpaces >>. char_ws '(' >>. description .>> unicodeSpaces .>> eof
 
-  let parseDescription log =
-      match log |> run parser with
+  let parseDescription desc =
+      match desc |> run parser with
       | Success(v,_,_) -> Some(v)
       | Failure(_,_,_) -> None
