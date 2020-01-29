@@ -10,9 +10,9 @@ module Deprecate =
   let createOrUpdateDescriptionStamp (description: string) (wasSearchable: bool) (wasRequired: bool) =
     let cleanDescription = removeDescriptionTimestamp description
     let deprecationDescription = 
-      { date = DateTime.Now
+      { date          = DateTime.Now
         wasSearchable = wasSearchable
-        wasRequired = false }
+        wasRequired   = wasRequired }
       |> textFromDeprecationDescription
 
     cleanDescription + deprecationDescription
