@@ -9,10 +9,14 @@ open Requests
 module Deprecate =
   let createOrUpdateDescriptionStamp (description: string) (wasSearchable: bool) =
     let cleanDescription = removeDescriptionTimestamp description
-    let searchable = if wasSearchable then WAS_SEARCHABLE_YES else WAS_SEARCHABLE_NO
-    let deprecationDate = sprintf "\n(Deprecated: %A, was searchable: %s)" DateTime.Now searchable
-    cleanDescription + deprecationDate
+    let deprecationDescription = 
+      { date = DateTime.Now
+        wasSearchable = wasSearchable
+        wasRequired = false }
+      |> textFromDeprecationDescription
 
+    cleanDescription + deprecationDescription
+    
   let safeAddDeprecationPrefix (displayName: string) (prefix: string) =
     if startsWithPrefix displayName prefix 
     then displayName

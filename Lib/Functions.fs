@@ -27,6 +27,11 @@ module Functions =
     | _   -> true // if no searchable vlaue is found, just return 1, implying we should reenable search
 
 
+  let textFromDeprecationDescription depdesc = 
+    let searchable = if depdesc.wasSearchable then YES_IDENTIFIER else NO_IDENTIFIER
+    let required = if depdesc.wasRequired then YES_IDENTIFIER else NO_IDENTIFIER
+    sprintf "\n(Deprecated: %A, was searchable: %s, was required: %s)" DateTime.Now searchable required
+
   let DeprecationStateToCheckBoxLiteral = function
     | DeprecationState.Favored -> UNCHECKED
     | DeprecationState.Deprecated -> CHECKED

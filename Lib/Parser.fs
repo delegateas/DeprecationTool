@@ -2,22 +2,17 @@
 
 open FParsec
 open System
+open Types
 
 module Parser =
-  type DeprecationDescription = {
-    date: DateTime;
-    wasSearchable: bool;
-    wasRequired: bool;
-  }
-
   let extendedBoolean = function
-    | "yes" -> true
+    | x when x = YES_IDENTIFIER -> true
     | "1"   -> true
     | _     -> false
 
   let decideRequired = function
     | Some(x) -> x
-    | None    -> "yes"
+    | None    -> YES_IDENTIFIER
   
 
   let private parser =
@@ -40,11 +35,11 @@ module Parser =
           wasRequired   = extendedBoolean (decideRequired required)
       }
 
-      let commit = pipe3 date wasSearchable wasRequired createDeprecationDescription
+      let description = pipe3 date wasSearchable wasRequired createDeprecationDescription
 
-      opt unicodeSpaces >>. char_ws '(' >>. commit .>> (opt <| char_ws ')') .>> unicodeSpaces .>> eof
+      opt unicodeSpaces >>. char_ws '(' >>. description .>> unicodeSpaces .>> eof
 
   let parseDescription log =
       match log |> run parser with
-      | Success(v,_,_)   -> v
-      | Failure(msg,_,_) -> failwith msg
+      | Success(v,_,_) -> Some(v)
+      | Failure(_,_,_) -> None
