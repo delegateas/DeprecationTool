@@ -7,12 +7,16 @@ open Functions
 open Requests
 
 module Deprecate =
-  let createOrUpdateDescriptionStamp (description: string) (wasSearchable: bool) =
+  let createOrUpdateDescriptionStamp (description: string) (wasSearchable: bool) (wasRequired: bool) =
     let cleanDescription = removeDescriptionTimestamp description
-    let searchable = if wasSearchable then WAS_SEARCHABLE_YES else WAS_SEARCHABLE_NO
-    let deprecationDate = sprintf "\n(Deprecated: %A, was searchable: %s)" DateTime.Now searchable
-    cleanDescription + deprecationDate
+    let deprecationDescription = 
+      { date          = DateTime.Now
+        wasSearchable = wasSearchable
+        wasRequired   = wasRequired }
+      |> textFromDeprecationDescription
 
+    cleanDescription + deprecationDescription
+    
   let safeAddDeprecationPrefix (displayName: string) (prefix: string) =
     if startsWithPrefix displayName prefix 
     then displayName
@@ -34,12 +38,15 @@ module Deprecate =
     let attr = attrMetadata.attribute
     attrMetadata.deprecationState <- DeprecationState.Deprecated
 
+    let wasRequired = attr.RequiredLevel.Value = Metadata.AttributeRequiredLevel.ApplicationRequired
+
     let newDescription = 
-      createOrUpdateDescriptionStamp(labelToString attr.Description) attr.IsValidForAdvancedFind.Value
+      createOrUpdateDescriptionStamp (labelToString attr.Description) attr.IsValidForAdvancedFind.Value wasRequired
     attr.Description <- Label(newDescription, attrMetadata.locale)
     attr.Description.UserLocalizedLabel <- LocalizedLabel(newDescription, attrMetadata.locale)
 
     attr.IsValidForAdvancedFind <- BooleanManagedProperty(false)
+    attr.RequiredLevel <- Metadata.AttributeRequiredLevelManagedProperty(Metadata.AttributeRequiredLevel.None)
 
     let newDisplayName = safeAddDeprecationPrefix (labelToString attr.DisplayName) displayNamePrefix
     attr.DisplayName <- Label(newDisplayName, attrMetadata.locale)
@@ -52,8 +59,10 @@ module Deprecate =
     let attr = attrMetadata.attribute
     attrMetadata.deprecationState <- DeprecationState.Favored
 
-    let previousSearchable = isDescriptionSearchable (labelToString attr.Description)
-    attr.IsValidForAdvancedFind <- BooleanManagedProperty(previousSearchable)
+    let deprecateDescriptionDetails = descriptionDetails (labelToString attr.Description)
+    
+    attr.IsValidForAdvancedFind <- BooleanManagedProperty(wasSearchable deprecateDescriptionDetails)
+    attr.RequiredLevel <- Metadata.AttributeRequiredLevelManagedProperty(wasRequired deprecateDescriptionDetails)
 
     let newDescription = removeDescriptionTimestamp (labelToString attr.Description)
     attr.Description <- Label(newDescription, attrMetadata.locale)
@@ -87,8 +96,8 @@ module Deprecate =
     let builderWithPrefix = buildAction prefix
 
     pendingChanges attrs
-    |> Array.Parallel.map(fun x -> decideAction x.deprecationState x.metaData)
-    |> Array.Parallel.map(fun x -> builderWithPrefix x)
-    |> Array.Parallel.map(fun x -> x :> OrganizationRequest)
-    |> Array.chunkBySize(1000)
+    |> Array.Parallel.map (fun x -> decideAction x.deprecationState x.metaData)
+    |> Array.Parallel.map (builderWithPrefix)
+    |> Array.Parallel.map (fun x -> x :> OrganizationRequest)
+    |> Array.chunkBySize  1000
     |> Array.map(fun x -> executeRequests proxy x)

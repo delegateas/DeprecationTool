@@ -13,9 +13,9 @@ module Types =
   let INDETERMINATE = "indeterminate";
 
   [<Literal>]
-  let WAS_SEARCHABLE_YES = "yes";
+  let YES_IDENTIFIER = "yes";
   [<Literal>]
-  let WAS_SEARCHABLE_NO = "no";
+  let NO_IDENTIFIER = "no";
 
   let labelToString (label: Label) =
     label.UserLocalizedLabel.Label.ToString()
@@ -25,6 +25,12 @@ module Types =
                         | Partial = 2 // Partial deprecation means only the name has been prefixed as deprecated.
 
   type LogicalName = string
+
+  type DeprecationDescription = {
+    date: DateTime;
+    wasSearchable: bool;
+    wasRequired: bool;
+  }
 
   type FieldNames = {
     logicalName: string

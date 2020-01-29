@@ -5,27 +5,23 @@ open Microsoft.Xrm.Sdk
 open Microsoft.Xrm.Sdk.Metadata
 open System.Globalization
 open Types
+open Parser
 open System.Text.RegularExpressions
 
 module Functions = 
-  // This should be done using a parser if it needs to be extended. This is not readable at all.
-  // especially if we need to provide backwards compatibility
-  let deprecationStampPattern = 
-    @"\n?(\(Deprecated:)\s*(?<date>\d{2,}\/\d{2,}\/\d{4,}\s*\d{2,}.\d{2,}.\d{2,}),\s*(was searchable|search):\s*(?<searchable>(1|0)|(yes|no))?(\))"
+  let deprecationDescriptionRegex = 
+    @"\n?\(Deprecated.*\)$"
 
-  let parseDescriptionStamp (description: string) =
-    let dateMatch = Regex.Match(description, deprecationStampPattern).Groups.["date"].Value
+  let descriptionDetails (description: string) = 
+    let firstPass = Regex.Match(description, deprecationDescriptionRegex)
+    if firstPass.Success
+    then parseDescription firstPass.Value
+    else None
 
-    match dateMatch with
-    | "" -> None
-    | s  -> Some(s)
-
-  let isDescriptionSearchable (description: string) = 
-    match Regex.Match(description, deprecationStampPattern).Groups.["searchable"].Value with
-    | "0"  -> false
-    | "no" -> false
-    | _   -> true // if no searchable vlaue is found, just return 1, implying we should reenable search
-
+  let textFromDeprecationDescription depdesc = 
+    let searchable = if depdesc.wasSearchable then YES_IDENTIFIER else NO_IDENTIFIER
+    let required = if depdesc.wasRequired then YES_IDENTIFIER else NO_IDENTIFIER
+    sprintf "\n(Deprecated: %A, was searchable: %s, was required: %s)" DateTime.Now searchable required
 
   let DeprecationStateToCheckBoxLiteral = function
     | DeprecationState.Favored -> UNCHECKED
@@ -49,9 +45,8 @@ module Functions =
     attrMetaData.IsValidForAdvancedFind.Value |> not
 
   let hasDeprecationDescription (attr: AttributeMetadata) = 
-    match (parseDescriptionStamp (labelToString attr.Description)) with
-    | Some(x) -> true
-    | _ -> false
+    let rawDescription = labelToString attr.Description
+    Regex.Match(rawDescription, deprecationDescriptionRegex).Success
 
   let isDeprecated (attr: AttributeMetadata) prefix =
     (isSearchable attr) && (hasDeprecationDescription attr) && (attrStartsWithPrefix attr prefix)
@@ -60,7 +55,7 @@ module Functions =
     (attrStartsWithPrefix attr prefix)
 
   let removeDescriptionTimestamp (description: string) =
-    Regex.Replace(description, deprecationStampPattern, "");
+    Regex.Replace(description, deprecationDescriptionRegex, "");
 
   let getDeprecationState (attr: AttributeMetadata) prefix =
     match attr with
@@ -68,6 +63,16 @@ module Functions =
     | x when (isPartiallyDeprecated x prefix) -> DeprecationState.Partial
     | _ -> DeprecationState.Favored
 
+
+  let wasSearchable = function
+  | Some(x) -> x.wasSearchable
+  | _ -> true
+
+  let wasRequired = function
+  | Some(x) -> if x.wasRequired 
+               then Metadata.AttributeRequiredLevel.ApplicationRequired 
+               else Metadata.AttributeRequiredLevel.None
+  | _ -> Metadata.AttributeRequiredLevel.None
 
   // if prefix is empty, it crashes. 
   // We need to check the given attribute metadata contains info or we can get a null pointer exeception.

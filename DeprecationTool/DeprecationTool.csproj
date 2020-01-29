@@ -221,6 +221,8 @@ xcopy "C:\Users\asa\source\repos\Testxrmtoolbox\Testxrmtoolbox\bin\Debug\Microso
       <InputAssemblies Include="$(TargetPath)" />
       <InputAssemblies Include="$(TargetDir)Lib.dll" />
       <InputAssemblies Include="$(TargetDir)FSharp.Core.dll" />
+      <InputAssemblies Include="$(TargetDir)FParsecCS.dll" />
+      <InputAssemblies Include="$(TargetDir)FParsec.dll" />
     </ItemGroup>
     <Exec Command="$(ILRepack) /parallel /out:$(TargetDir)ILMerged.$(TargetFileName) /lib:$(TargetDir) @(InputAssemblies -> '%(Identity)', ' ')" />
   </Target>
