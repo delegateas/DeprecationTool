@@ -77,7 +77,7 @@ namespace DeprecationTool
                     new Uri("https://github.com/delegateas/DeprecationTool/blob/master/README.md"));
 
                 pluginSettings.FieldPrefix = "";
-                pluginSettings.DeprecationPrefix = "zz_";
+                pluginSettings.DeprecationPrefix = "ZZ_";
             }
 
         }
