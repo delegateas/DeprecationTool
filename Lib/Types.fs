@@ -17,6 +17,9 @@ module Types =
   [<Literal>]
   let NO_IDENTIFIER = "no";
 
+  [<Literal>]
+  let CURRENCY_BASE = "_base";
+
   let labelToString (label: Label) =
     label.UserLocalizedLabel.Label.ToString()
 
@@ -41,12 +44,13 @@ module Types =
     entityLName: LogicalName;
     locale: int;
     attribute: AttributeMetadata;
+    dependantMetaData: MetaData option;
     mutable deprecationState: DeprecationState;
   } with 
     override this.ToString() =
-      this.attribute.SchemaName
+      this.attribute.LogicalName
     member this.ColumnNames() =
-      { logicalName = this.attribute.SchemaName
+      { logicalName = this.attribute.LogicalName
         displayName = labelToString this.attribute.DisplayName }
 
   type EntityWithFields = {
