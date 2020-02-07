@@ -30,7 +30,7 @@ module Deprecate =
 
   (* An attribute is deprecated when 
       1. The display name has been prepended with a deprecation prefix, such as "zz_"
-      2. Searchable is set to no (IsValidForAdvancedFind)
+      2. Searchable is set to no (IsValidForAdvancedFind) and businessrequired is set to no
       3. The description has a deprecation datetime-stamp defined by our RegExp at the beginning.
   *)
   let deprecateAttribute (attrMetadata: MetaData) (displayNamePrefix: string) =
@@ -74,6 +74,12 @@ module Deprecate =
 
     attributeUpdateRequest attrMetadata
 
+  let actionWithDependant action (attrMetadata: MetaData) (displayNamePrefix: string) =
+    match attrMetadata.dependantMetaData with
+    | Some(x) -> [| action attrMetadata displayNamePrefix ; 
+                    action x displayNamePrefix|]
+    | None    -> [| action attrMetadata displayNamePrefix |]
+
   let pendingChanges (attrs: MetaDataWithCheck[]) =
     attrs 
     |> Array.filter(fun x -> x.deprecationState <> x.metaData.deprecationState)
@@ -89,15 +95,18 @@ module Deprecate =
 
   let buildAction (prefix: string) (attr: Action) =
     match attr with
-    | Deprecate x -> deprecateAttribute x prefix
-    | Favor x -> favorAttribute x prefix
+    | Deprecate x -> actionWithDependant deprecateAttribute x prefix
+    | Favor     x -> actionWithDependant favorAttribute x prefix
   
   let decideAndExecuteOperations (proxy: IOrganizationService) (attrs: MetaDataWithCheck[]) (prefix: string) =
     let builderWithPrefix = buildAction prefix
+    let pending = pendingChanges attrs
 
-    pendingChanges attrs
+    pending
     |> Array.Parallel.map (fun x -> decideAction x.deprecationState x.metaData)
     |> Array.Parallel.map (builderWithPrefix)
-    |> Array.Parallel.map (fun x -> x :> OrganizationRequest)
+    // map list of requests to OrganizationRequest and flatten all lists, 
+    // note buildAction can return either 1 or 2 OrganizationRequests, that's why it's needed.
+    |> Array.Parallel.collect (Array.map (fun x -> x :> OrganizationRequest))
     |> Array.chunkBySize  1000
     |> Array.map(fun x -> executeRequests proxy x)

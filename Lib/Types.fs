@@ -48,9 +48,9 @@ module Types =
     mutable deprecationState: DeprecationState;
   } with 
     override this.ToString() =
-      this.attribute.SchemaName
+      this.attribute.LogicalName
     member this.ColumnNames() =
-      { logicalName = this.attribute.SchemaName
+      { logicalName = this.attribute.LogicalName
         displayName = labelToString this.attribute.DisplayName }
 
   type EntityWithFields = {

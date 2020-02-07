@@ -165,7 +165,7 @@ namespace DeprecationTool
                     if (!(args.Result is Tuple<string, Types.EntityWithFields> result)) return;
                     if (!solutionsWithData.TryGetValue(solutionName, out var res)) return;
                     res[entityName] = result.Item2;
-                    PopulateFieldListView(result.Item2);
+                    PopulateFieldListView(res[entityName]);
                     FieldButtonsEnabled(true);
                 }
             };
