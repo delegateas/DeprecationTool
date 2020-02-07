@@ -82,6 +82,7 @@ module Functions =
           MetaData.entityLName = entityLName
           locale = attr.Description.UserLocalizedLabel.LanguageCode
           attribute = attr
+          dependantMetaData = None
           deprecationState = (getDeprecationState attr prefix) 
       }
 
@@ -91,3 +92,12 @@ module Functions =
     && x.DisplayName<> null
     && x.DisplayName.UserLocalizedLabel <> null
     && x.IsValidForAdvancedFind <> null
+
+  let combineCurrencyBaseFields (x: MetaData) (acc: MetaData list) (map: Map<LogicalName, MetaData>) suffix =
+    let logicalName = x.attribute.LogicalName
+    if logicalName.EndsWith(suffix) then
+      (acc, map)
+    else
+      let baseEntityOpt = Map.tryFind (logicalName + suffix) map
+      let metaDataWithPossibleBase = {x with dependantMetaData = baseEntityOpt}
+      (metaDataWithPossibleBase :: acc, map)

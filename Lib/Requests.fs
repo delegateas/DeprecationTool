@@ -53,6 +53,17 @@ module Requests =
     retrieveMultiple proxy logicalName q
     |> Array.ofSeq
 
+  let filteredMetaDataMap filteredMetaData = 
+    filteredMetaData
+    |> Array.Parallel.choose (fun x -> if x.attribute.LogicalName.EndsWith(CURRENCY_BASE) then Some(x) else None)
+    |> Array.Parallel.map    (fun x -> (x.attribute.LogicalName, x))
+    |> Map.ofArray
+
+  let combinedCurrencyFieldMetaData filteredMetaData baseSuffixMetaDataMap = 
+    filteredMetaData
+    |> Array.fold (fun (acc, map) x -> combineCurrencyBaseFields x acc map CURRENCY_BASE) ([], baseSuffixMetaDataMap)
+    |> (fst >> Array.ofList) // turn first item in tuple, a list, into an array
+
   let getEntityAttributesFromId (proxy:IOrganizationService) metadataId filterPrefix deprecationPrefix =
     let request = RetrieveEntityRequest()
     request.MetadataId <- metadataId
@@ -67,11 +78,19 @@ module Requests =
       |> Array.filter (fun x -> filterValidAttribute x)
       |> Array.filter (fun x -> x.AttributeOf = null)
       |> Array.filter (fun x -> startsWithPrefix x.LogicalName filterPrefix)
-      |> Array.map (curriedDeprecationType)
+      |> Array.Parallel.map (curriedDeprecationType)
     
+    // construct a map of every entity with _base suffix to allow constant time lookups
+    // when going through entities to decide if they're a currency field or not 
+    // giving them some dependantMetaData value if lookup succeeds
+    let combinedCurrencyFieldMetaData = 
+      filteredMetaData
+      |> filteredMetaDataMap
+      |> combinedCurrencyFieldMetaData filteredMetaData
+
     let returnValue = {
       entityGuid = metadataId
-      fields = filteredMetaData
+      fields = combinedCurrencyFieldMetaData
     }
 
     (resp.EntityMetadata.LogicalName, returnValue)
