@@ -384,7 +384,7 @@ namespace DeprecationTool
                     if (args.Error != null)
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     FieldButtonsEnabled(true);
-                    MessageBox.Show("Remember to publish the entity/all after deprecations!", 
+                    MessageBox.Show("Remember to publish the entity/all after deprecations! Data inconsistency might happen.", 
                         "Notice, poublish changes!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             });
