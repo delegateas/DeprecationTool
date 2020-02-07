@@ -19,7 +19,7 @@ namespace DeprecationTool
         private FormState formState;
         private Settings pluginSettings;
         private Types.SolutionData[] solutions;
-        private IDictionary<string, Dictionary<string, Types.EntityWithFields>> solutionsWithData;
+        private Dictionary<string, Dictionary<string, Types.EntityWithFields>> solutionsWithData;
 
         public DeprecateControl()
         {
@@ -116,7 +116,7 @@ namespace DeprecationTool
                     if (args.Error != null)
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    if (!(args.Result is IDictionary<string, Dictionary<string, Types.EntityWithFields>> result)) return;
+                    if (!(args.Result is Dictionary<string, Dictionary<string, Types.EntityWithFields>> result)) return;
 
                     solutionsWithData = result;
                     PopulateSolutionsComboBox();
@@ -384,6 +384,8 @@ namespace DeprecationTool
                     if (args.Error != null)
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     FieldButtonsEnabled(true);
+                    MessageBox.Show("Remember to publish the entity/all after deprecations!", 
+                        "Notice, poublish changes!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             });
         }

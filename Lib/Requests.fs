@@ -113,6 +113,7 @@ module Requests =
       (sol.uniqueName, entityMetadata)
     )
     |> dict
+    |> (fun x -> Dictionary(x))
 
   let retrieveSolutionNames proxy (ignore: string[]) prefix =
     let ignoreSet = ignore |> Set.ofArray
